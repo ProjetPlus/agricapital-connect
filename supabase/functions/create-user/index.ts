@@ -137,8 +137,7 @@ serve(async (req) => {
 
     console.log("User creation initiated for:", email);
 
-    // Check if a profile already exists by email. If it exists, the operation is idempotent:
-    // update the Auth password/profile/roles instead of returning a blocking duplicate error.
+    // Never overwrite an existing account's password from the creation flow.
     const { data: existingProfiles, error: existingProfileError } = await supabase
       .from("profiles")
       .select("id,user_id,email")
@@ -152,71 +151,38 @@ serve(async (req) => {
 
     const existingProfile = existingProfiles?.[0] || null;
 
-    let authUser = null;
-    let userAlreadyExisted = false;
-
-    if (existingProfile?.user_id || existingProfile?.id) {
-      const existingUserId = existingProfile.user_id || existingProfile.id;
-      const { data: updatedAuthData, error: updateAuthError } = await supabase.auth.admin.updateUserById(
-        existingUserId,
-        {
-          email,
-          password,
-          email_confirm: true,
-          user_metadata: { nom_complet },
-        },
-      );
-
-      if (updateAuthError) {
-        console.error("Auth update error:", updateAuthError);
-        throw new Error("Un profil existe pour cet email, mais le compte Auth associé est introuvable ou invalide.");
-      }
-
-      authUser = updatedAuthData.user;
-      userAlreadyExisted = true;
-      console.log("Existing user updated:", authUser.id);
-    } else {
-      // Create user in auth. If Auth already has the user but the profile lookup missed it,
-      // recover by locating the Auth user and updating it.
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
-        user_metadata: { nom_complet },
-      });
-
-      if (authError) {
-        const duplicateAuthUser = /already|registered|exists|duplicate/i.test(authError.message || "")
-          ? await findAuthUserByEmail(supabase, email)
-          : null;
-
-        if (!duplicateAuthUser) {
-          console.error("Auth error:", authError);
-          throw authError;
-        }
-
-        const { data: updatedAuthData, error: updateAuthError } = await supabase.auth.admin.updateUserById(
-          duplicateAuthUser.id,
-          {
-            password,
-            email_confirm: true,
-            user_metadata: { nom_complet },
-          },
-        );
-
-        if (updateAuthError) {
-          console.error("Auth duplicate recovery error:", updateAuthError);
-          throw updateAuthError;
-        }
-
-        authUser = updatedAuthData.user;
-        userAlreadyExisted = true;
-        console.log("Existing auth user recovered:", authUser.id);
-      } else {
-        authUser = authData.user;
-        console.log("User authentication record created:", authUser.id);
-      }
+    if (existingProfile) {
+      return jsonResponse({
+        success: false,
+        error: "Un compte existe déjà avec cet email. Utilisez la gestion des utilisateurs ou la réinitialisation du mot de passe.",
+      }, 409);
     }
+
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { nom_complet },
+    });
+
+    if (authError) {
+      const duplicateAuthUser = /already|registered|exists|duplicate/i.test(authError.message || "")
+        ? await findAuthUserByEmail(supabase, email)
+        : null;
+
+      if (duplicateAuthUser) {
+        return jsonResponse({
+          success: false,
+          error: "Un compte de connexion existe déjà avec cet email. Réinitialisez son mot de passe au lieu de le recréer.",
+        }, 409);
+      }
+
+      console.error("Auth error:", authError);
+      throw authError;
+    }
+
+    const authUser = authData.user;
+    console.log("User authentication record created:", authUser.id);
 
     if (!authUser?.id) {
       throw new Error("Compte Auth introuvable après création ou mise à jour");
@@ -224,7 +190,7 @@ serve(async (req) => {
 
     // Upsert profile (handle_new_user trigger may have already created a base row)
     const profilePayload = {
-        id: existingProfile?.id || authUser.id,
+        id: authUser.id,
         user_id: authUser.id,
         email,
         nom_complet,
@@ -242,22 +208,17 @@ serve(async (req) => {
         actif: true,
     };
 
-    const profileQuery = existingProfile?.id
-      ? supabase.from("profiles").update(profilePayload).eq("id", existingProfile.id)
-      : supabase.from("profiles").upsert(profilePayload, { onConflict: "id" });
-
-    const { error: profileError } = await profileQuery;
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .upsert(profilePayload, { onConflict: "id" });
 
     if (profileError) {
       console.error("Profile error:", profileError);
-      if (!userAlreadyExisted) {
-        // Try to delete the auth user if profile creation fails for a brand-new account
-        await supabase.auth.admin.deleteUser(authUser.id);
-      }
+      await supabase.auth.admin.deleteUser(authUser.id);
       throw profileError;
     }
 
-    console.log(userAlreadyExisted ? "Profile updated successfully" : "Profile created successfully");
+    console.log("Profile created successfully");
 
     // Roles are managed only through user_roles. Replace stale roles, then upsert the requested set.
     const { error: deleteRolesError } = await supabase
@@ -286,10 +247,10 @@ serve(async (req) => {
 
     return jsonResponse({
       success: true,
-      message: userAlreadyExisted ? "Utilisateur existant mis à jour avec succès" : "Utilisateur créé avec succès",
+      message: "Utilisateur créé avec succès",
       user_id: authUser.id,
       email,
-      user_already_existed: userAlreadyExisted,
+      user_already_existed: false,
     });
   } catch (error: any) {
     console.error("Error:", error);

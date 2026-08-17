@@ -120,7 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     try {
-      let email = usernameOrEmail;
+      let email = usernameOrEmail.trim().toLowerCase();
 
       if (!navigator.onLine) {
         const cached = await getCachedAuth();
@@ -165,7 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           });
           return { error: { message: "Nom d'utilisateur introuvable" } };
         }
-        email = resolved;
+        email = resolved.trim().toLowerCase();
       }
 
       const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -181,7 +181,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         toast({
           variant: "destructive",
           title: "Erreur de connexion",
-          description: getSafeErrorMessage(error, 'Identifiants incorrects'),
+          description: /invalid login credentials/i.test(error.message || '')
+            ? 'Mot de passe incorrect. Utilisez « Mot de passe oublié ? » pour le réinitialiser.'
+            : getSafeErrorMessage(error, 'Identifiants incorrects'),
         });
         return { error };
       }

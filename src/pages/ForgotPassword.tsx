@@ -11,7 +11,7 @@ import { ArrowLeft } from "lucide-react";
 import { getSafeErrorMessage } from "@/lib/safeError";
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const { toast } = useToast();
@@ -22,6 +22,20 @@ const ForgotPassword = () => {
     setIsLoading(true);
     
     try {
+      let email = identifier.trim().toLowerCase();
+
+      if (!email.includes("@")) {
+        const { data: resolveData, error: resolveError } = await supabase.functions.invoke(
+          "resolve-username",
+          { body: { username: email } },
+        );
+
+        email = typeof resolveData?.email === "string" ? resolveData.email.trim().toLowerCase() : "";
+        if (resolveError || !email) {
+          throw new Error("Identifiant introuvable");
+        }
+      }
+
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
@@ -60,7 +74,7 @@ const ForgotPassword = () => {
           <CardDescription>
             {emailSent 
               ? "Un email de réinitialisation a été envoyé"
-              : "Entrez votre email pour réinitialiser votre mot de passe"
+                Entrez votre identifiant ou votre email pour réinitialiser votre mot de passe
             }
           </CardDescription>
         </CardHeader>
@@ -69,18 +83,19 @@ const ForgotPassword = () => {
           {!emailSent ? (
             <form onSubmit={handleResetPassword} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground font-medium">
-                  Email
+                <Label htmlFor="identifier" className="text-foreground font-medium">
+                  Identifiant ou email
                 </Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="contact@agricapital.ci"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="identifier"
+                  type="text"
+                  placeholder="votre_identifiant ou contact@agricapital.ci"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   required
                   className="h-11"
                   disabled={isLoading}
+                  autoComplete="username"
                 />
               </div>
 
