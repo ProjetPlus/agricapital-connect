@@ -30,6 +30,8 @@ import Documents from "./pages/Documents";
 import Leads from "./pages/Leads";
 import SyncQueue from "./pages/SyncQueue";
 import PublicLead from "./pages/PublicLead";
+import AgriPlan from "./pages/AgriPlan";
+import AgriPlant from "./pages/AgriPlant";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
