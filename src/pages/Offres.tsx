@@ -340,7 +340,7 @@ const Offres = () => {
                 <div>
                   <p className="font-semibold text-green-800">Promotion active: {activePromo.nom}</p>
                   <p className="text-sm text-green-600">
-                    -{activePromo.pourcentage_reduction}% sur le DA jusqu'au {format(new Date(activePromo.date_fin), 'dd/MM/yyyy', { locale: fr })}
+                    -{activePromo.pourcentage_reduction}% sur le DI jusqu'au {format(new Date(activePromo.date_fin), 'dd/MM/yyyy', { locale: fr })}
                   </p>
                 </div>
               </CardContent>
@@ -477,7 +477,7 @@ const Offres = () => {
                               </div>
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                  <Label htmlFor="montant_da">Montant DA/ha (F)</Label>
+                                  <Label htmlFor="montant_da">Montant DI/ha (F)</Label>
                                   <Input 
                                     id="montant_da"
                                     type="number"
@@ -541,7 +541,7 @@ const Offres = () => {
                     {editingPromo ? "Modifier la promotion" : "Créer une promotion"}
                   </DialogTitle>
                   <DialogDescription>
-                    La réduction sera appliquée automatiquement sur le Droit d'Accès de toutes les offres.
+                    La réduction sera appliquée automatiquement sur le Dépôt Initial de toutes les offres.
                   </DialogDescription>
                 </DialogHeader>
                 

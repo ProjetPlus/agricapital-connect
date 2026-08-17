@@ -770,7 +770,7 @@ const GestionPaiements = () => {
                           </TableCell>
                           <TableCell>
                             <Badge variant="outline">
-                              {paiement.type_paiement === 'DA' ? "Droit d'Accès" : 'Redevance'}
+                              {paiement.type_paiement === 'DA' ? "Dépôt Initial" : 'Redevance'}
                             </Badge>
                           </TableCell>
                           <TableCell className="font-bold">
@@ -973,7 +973,7 @@ const GestionPaiements = () => {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Type</p>
-                      <p>{selectedPaiement.type_paiement === 'DA' ? "Droit d'Accès" : 'Redevance'}</p>
+                      <p>{selectedPaiement.type_paiement === 'DA' ? "Dépôt Initial" : 'Redevance'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Montant</p>
