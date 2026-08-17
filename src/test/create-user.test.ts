@@ -34,9 +34,9 @@ describe("create-user edge function contract", () => {
     );
   });
 
-  it("ne bloque pas un email déjà existant: le flux est idempotent", () => {
-    expect(createUserSource).not.toContain('error: "Un utilisateur avec cet email existe déjà"');
-    expect(createUserSource).toContain("updateUserById");
+  it("ne réécrit jamais le mot de passe d'un compte existant", () => {
+    expect(createUserSource).not.toContain("updateUserById");
+    expect(createUserSource).toContain("Réinitialisez son mot de passe au lieu de le recréer");
     expect(createUserSource).toContain("user_already_existed");
     expect(createUserSource).toContain("user_roles");
   });
