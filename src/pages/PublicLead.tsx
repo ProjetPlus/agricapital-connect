@@ -11,13 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import logoV2 from "@/assets/logo-agricapital-v2.png";
 import { getSafeErrorMessage } from "@/lib/safeError";
-
-const REGIONS_CI = [
-  "Abidjan","Agnéby-Tiassa","Bafing","Bagoué","Bélier","Béré","Bounkani","Cavally","Folon",
-  "Gbêkê","Gbôklé","Gôh","Gontougo","Grands-Ponts","Guémon","Hambol","Haut-Sassandra",
-  "Iffou","Indénié-Djuablin","Kabadougou","La Mé","Lôh-Djiboua","Marahoué","Moronou",
-  "Nawa","N'Zi","Poro","San-Pédro","Sud-Comoé","Tchologo","Tonkpi","Worodougou","Yamoussoukro",
-];
+import RegionSelect from "@/components/common/RegionSelect";
 
 const CRENEAUX = [
   { v: "08_10", l: "08h00 – 10h00" }, { v: "10_12", l: "10h00 – 12h00" },
@@ -118,13 +112,11 @@ export default function PublicLead() {
             <CardContent className="space-y-4">
               <div>
                 <Label>Région de résidence *</Label>
-                <Select value={f.region_residence} onValueChange={v=>{ set("region_residence",v); set("est_diaspora", v==="Diaspora"); }}>
-                  <SelectTrigger><SelectValue placeholder="Sélectionnez..." /></SelectTrigger>
-                  <SelectContent className="max-h-80">
-                    {REGIONS_CI.map(r=><SelectItem key={r} value={r}>{r}</SelectItem>)}
-                    <SelectItem value="Diaspora">Diaspora</SelectItem>
-                  </SelectContent>
-                </Select>
+                <RegionSelect
+                  withDiaspora
+                  value={f.region_residence}
+                  onChange={(v, isDiaspora) => { set("region_residence", v); set("est_diaspora", isDiaspora); }}
+                />
               </div>
               {f.est_diaspora && (
                 <div><Label>Pays de résidence</Label><Input value={f.pays_diaspora} onChange={e=>set("pays_diaspora",e.target.value)} placeholder="Ex: France, USA..." /></div>

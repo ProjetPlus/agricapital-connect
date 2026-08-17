@@ -374,7 +374,7 @@ const PaiementForm = ({ paiement, onSuccess, onCancel }: PaiementFormProps) => {
               <SelectValue placeholder="Type de paiement" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="DA">Droit d'Accès (DA)</SelectItem>
+              <SelectItem value="DA">Dépôt Initial (DI)</SelectItem>
               <SelectItem value="CONTRIBUTION">Contribution Annuelle</SelectItem>
             </SelectContent>
           </Select>
@@ -429,7 +429,7 @@ const PaiementForm = ({ paiement, onSuccess, onCancel }: PaiementFormProps) => {
           <Card className="bg-primary/5 border-primary/20">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium">
-                💰 Calcul Droit d'Accès
+                💰 Calcul Dépôt Initial
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
@@ -468,7 +468,7 @@ const PaiementForm = ({ paiement, onSuccess, onCancel }: PaiementFormProps) => {
         {/* MONTANT (DA uniquement - lecture seule) */}
         {typePaiement === "DA" && souscripteurId && (
           <div>
-            <Label htmlFor="montant_theorique">Montant Droit d'Accès (F CFA) *</Label>
+            <Label htmlFor="montant_theorique">Montant Dépôt Initial (F CFA) *</Label>
             <Input
               type="number"
               {...register("montant_theorique", { required: true })}
@@ -476,7 +476,7 @@ const PaiementForm = ({ paiement, onSuccess, onCancel }: PaiementFormProps) => {
               className="bg-muted font-bold text-lg"
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Le DA complet est obligatoire (pas de paiement partiel)
+              Le DI complet est obligatoire (pas de paiement partiel)
             </p>
           </div>
         )}

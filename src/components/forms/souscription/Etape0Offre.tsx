@@ -229,7 +229,7 @@ export const Etape0Offre = ({ formData, updateFormData }: Etape0Props) => {
       <Card>
         <CardHeader>
           <CardTitle>Superficie prévue</CardTitle>
-          <CardDescription>Indiquez la superficie approximative pour calculer le montant du Droit d'Accès</CardDescription>
+          <CardDescription>Indiquez la superficie approximative pour calculer le montant du Dépôt Initial (DI)</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">

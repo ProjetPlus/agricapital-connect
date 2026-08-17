@@ -183,7 +183,7 @@ const Promotions = () => {
         <div>
           <h1 className="text-3xl font-bold">Gestion des Promotions</h1>
           <p className="text-muted-foreground">
-            Réductions sur le Dépôt Initial (DA) ou le Coût Global de souscription
+            Réductions sur le Dépôt Initial (DI) ou le Coût Global de souscription
           </p>
         </div>
           
@@ -195,7 +195,7 @@ const Promotions = () => {
             <DialogHeader>
               <DialogTitle>{editingPromo ? "Modifier la promotion" : "Créer une promotion"}</DialogTitle>
               <DialogDescription>
-                Choisissez le type de promotion : sur le dépôt initial (DA) ou sur le coût global.
+                Choisissez le type de promotion : sur le dépôt initial (DI) ou sur le coût global.
               </DialogDescription>
             </DialogHeader>
             
@@ -249,7 +249,7 @@ const Promotions = () => {
                   </div>
                   {formData.cible === "depot_initial" && (
                     <p className="text-xs text-muted-foreground">
-                      DA réduit: {calculateReducedAmount(parseInt(formData.pourcentage_reduction || "0")).toLocaleString()} F/ha
+                      DI réduit: {calculateReducedAmount(parseInt(formData.pourcentage_reduction || "0")).toLocaleString()} F/ha
                     </p>
                   )}
                 </div>
@@ -358,7 +358,7 @@ const Promotions = () => {
       <Card>
         <CardHeader>
           <CardTitle>Liste des promotions</CardTitle>
-          <CardDescription>Gérez les promotions sur le DA (dépôt initial) et sur le coût global.</CardDescription>
+          <CardDescription>Gérez les promotions sur le DI (dépôt initial) et sur le coût global.</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (

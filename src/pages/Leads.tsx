@@ -21,6 +21,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Target, TrendingUp, Users, MapPin, PhoneCall, ArrowRight, Copy, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { getSafeErrorMessage } from "@/lib/safeError";
+import RegionSelect from "@/components/common/RegionSelect";
 
 
 const STATUTS = [
@@ -407,7 +408,14 @@ export default function Leads() {
               <div><Label>Téléphone *</Label><Input type="tel" value={leadForm.telephone} onChange={(e) => setLeadForm({ ...leadForm, telephone: e.target.value })} /></div>
               <div><Label>WhatsApp</Label><Input type="tel" value={leadForm.whatsapp} onChange={(e) => setLeadForm({ ...leadForm, whatsapp: e.target.value })} /></div>
               <div><Label>Email</Label><Input type="email" value={leadForm.email} onChange={(e) => setLeadForm({ ...leadForm, email: e.target.value })} /></div>
-              <div><Label>Région *</Label><Input value={leadForm.region_residence} onChange={(e) => setLeadForm({ ...leadForm, region_residence: e.target.value })} /></div>
+              <div>
+                <Label>Région *</Label>
+                <RegionSelect
+                  withDiaspora
+                  value={leadForm.region_residence}
+                  onChange={(v, isDiaspora) => setLeadForm({ ...leadForm, region_residence: v, est_diaspora: isDiaspora ? "oui" : leadForm.est_diaspora })}
+                />
+              </div>
               <div>
                 <Label>Diaspora ?</Label>
                 <Select value={leadForm.est_diaspora} onValueChange={(v) => setLeadForm({ ...leadForm, est_diaspora: v })}>

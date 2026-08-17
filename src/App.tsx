@@ -30,6 +30,8 @@ import Documents from "./pages/Documents";
 import Leads from "./pages/Leads";
 import SyncQueue from "./pages/SyncQueue";
 import PublicLead from "./pages/PublicLead";
+import AgriPlan from "./pages/AgriPlan";
+import AgriPlant from "./pages/AgriPlant";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -56,6 +58,8 @@ const DomainRouter = () => {
       <Route path="/planteur/:id" element={<PlanteurDetail />} />
       <Route path="/planteur/:id/historique" element={<HistoriqueComplet />} />
       <Route path="/plantations" element={<Plantations />} />
+      <Route path="/agriplan" element={<AgriPlan />} />
+      <Route path="/agriplant" element={<AgriPlant />} />
       <Route path="/proprietaires-terres" element={<ProprietairesTerres />} />
       <Route path="/parcelles" element={<Parcelles />} />
       <Route path="/documents" element={<Documents />} />
