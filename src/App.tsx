@@ -58,6 +58,8 @@ const DomainRouter = () => {
       <Route path="/planteur/:id" element={<PlanteurDetail />} />
       <Route path="/planteur/:id/historique" element={<HistoriqueComplet />} />
       <Route path="/plantations" element={<Plantations />} />
+      <Route path="/agriplan" element={<AgriPlan />} />
+      <Route path="/agriplant" element={<AgriPlant />} />
       <Route path="/proprietaires-terres" element={<ProprietairesTerres />} />
       <Route path="/parcelles" element={<Parcelles />} />
       <Route path="/documents" element={<Documents />} />
