@@ -21,6 +21,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Target, TrendingUp, Users, MapPin, PhoneCall, ArrowRight, Copy, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { getSafeErrorMessage } from "@/lib/safeError";
+import RegionSelect from "@/components/common/RegionSelect";
 
 
 const STATUTS = [
