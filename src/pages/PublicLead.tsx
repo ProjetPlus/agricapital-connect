@@ -11,13 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import logoV2 from "@/assets/logo-agricapital-v2.png";
 import { getSafeErrorMessage } from "@/lib/safeError";
-
-const REGIONS_CI = [
-  "Abidjan","Agnéby-Tiassa","Bafing","Bagoué","Bélier","Béré","Bounkani","Cavally","Folon",
-  "Gbêkê","Gbôklé","Gôh","Gontougo","Grands-Ponts","Guémon","Hambol","Haut-Sassandra",
-  "Iffou","Indénié-Djuablin","Kabadougou","La Mé","Lôh-Djiboua","Marahoué","Moronou",
-  "Nawa","N'Zi","Poro","San-Pédro","Sud-Comoé","Tchologo","Tonkpi","Worodougou","Yamoussoukro",
-];
+import RegionSelect from "@/components/common/RegionSelect";
 
 const CRENEAUX = [
   { v: "08_10", l: "08h00 – 10h00" }, { v: "10_12", l: "10h00 – 12h00" },
