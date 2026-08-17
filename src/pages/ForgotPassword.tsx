@@ -74,7 +74,7 @@ const ForgotPassword = () => {
           <CardDescription>
             {emailSent 
               ? "Un email de réinitialisation a été envoyé"
-                Entrez votre identifiant ou votre email pour réinitialiser votre mot de passe
+              : "Entrez votre identifiant ou votre email pour réinitialiser votre mot de passe"
             }
           </CardDescription>
         </CardHeader>
