@@ -118,13 +118,11 @@ export default function PublicLead() {
             <CardContent className="space-y-4">
               <div>
                 <Label>Région de résidence *</Label>
-                <Select value={f.region_residence} onValueChange={v=>{ set("region_residence",v); set("est_diaspora", v==="Diaspora"); }}>
-                  <SelectTrigger><SelectValue placeholder="Sélectionnez..." /></SelectTrigger>
-                  <SelectContent className="max-h-80">
-                    {REGIONS_CI.map(r=><SelectItem key={r} value={r}>{r}</SelectItem>)}
-                    <SelectItem value="Diaspora">Diaspora</SelectItem>
-                  </SelectContent>
-                </Select>
+                <RegionSelect
+                  withDiaspora
+                  value={f.region_residence}
+                  onChange={(v, isDiaspora) => { set("region_residence", v); set("est_diaspora", isDiaspora); }}
+                />
               </div>
               {f.est_diaspora && (
                 <div><Label>Pays de résidence</Label><Input value={f.pays_diaspora} onChange={e=>set("pays_diaspora",e.target.value)} placeholder="Ex: France, USA..." /></div>
