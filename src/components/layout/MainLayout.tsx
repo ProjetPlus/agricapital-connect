@@ -15,7 +15,7 @@ import { useGlobalRealtime } from "@/hooks/useGlobalRealtime";
 import {
   LayoutDashboard, Users, Sprout, CreditCard, LogOut, Menu, Receipt,
   BarChart3, Ticket, Wallet, FileText, Settings, UserCircle, Wifi, WifiOff, RefreshCw, Signal,
-  LandPlot, Layers, Search, Target, CloudUpload
+  LandPlot, Layers, Search, Target, CloudUpload, CalendarRange, Leaf
 } from "lucide-react";
 
 interface MainLayoutProps { children: ReactNode; }
