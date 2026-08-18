@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import OffreAgriPlan from "@/pages/parametres/OffreAgriPlan";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Check, Crown, TrendingUp, Leaf, Plus, Pencil, Loader2, Trash2, Gift, Percent, CheckCircle, XCircle, Edit } from "lucide-react";
@@ -57,7 +58,7 @@ const getCouleur = (code: string, couleur?: string | null) => {
 const Offres = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<'offres' | 'promotions'>('offres');
+  const [activeTab, setActiveTab] = useState<'offres' | 'promotions' | 'agriplan'>('offres');
   const [editOffre, setEditOffre] = useState<Offre | null>(null);
   const [isOffreDialogOpen, setIsOffreDialogOpen] = useState(false);
   const [isPromoDialogOpen, setIsPromoDialogOpen] = useState(false);
@@ -316,7 +317,7 @@ const Offres = () => {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'offres' | 'promotions')}>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'offres' | 'promotions' | 'agriplan')}>
         <TabsList>
           <TabsTrigger value="offres" className="gap-2">
             <Crown className="h-4 w-4" />
@@ -329,7 +330,15 @@ const Offres = () => {
               <Badge className="ml-1 bg-green-500" variant="secondary">1 active</Badge>
             )}
           </TabsTrigger>
+          <TabsTrigger value="agriplan" className="gap-2">
+            <Leaf className="h-4 w-4" />
+            AgriPlan
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="agriplan" className="space-y-4">
+          <OffreAgriPlan />
+        </TabsContent>
 
         {/* Onglet Offres */}
         <TabsContent value="offres" className="space-y-4">

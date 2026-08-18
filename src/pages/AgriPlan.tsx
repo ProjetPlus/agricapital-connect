@@ -1,306 +1,213 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
+import { supabase } from "@/integrations/supabase/client";
+import { useAgriPlanGeo } from "@/hooks/useAgriPlanGeo";
+import { useAgriPlanOffre } from "@/hooks/useAgriPlanOffre";
+import { PERMISSIONS, hasPermission } from "@/lib/roles";
+import { useAuth } from "@/hooks/useAuth";
+import { AGRIPLAN_ETAPES, AGRIPLAN_LEAD_STATUTS, formatFCFA, labelOf } from "@/lib/agriplan";
+import AgriPlanLeadDialog from "@/components/agriplan/AgriPlanLeadDialog";
+import AgriPlanVenteDialog, { AgriPlanLeadLite } from "@/components/agriplan/AgriPlanVenteDialog";
+import AgriPlanClientDetail from "@/components/agriplan/AgriPlanClientDetail";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
-import { usePermissions } from "@/hooks/usePermissions";
-import { useAgriPlan } from "@/hooks/useAgriPlan";
-import { getSafeErrorMessage } from "@/lib/safeError";
-import {
-  AGRIPLAN_ACCOMPAGNEMENT,
-  AGRIPLAN_EXCLUS,
-  AGRIPLAN_INCLUS,
-  AgriPlanEcheanceStatut,
-  formatFCFA,
-} from "@/lib/agriplan";
-import { CalendarClock, CheckCircle2, Save, TriangleAlert, XCircle } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Plus, ShoppingCart, Search, Users, Target, Wallet } from "lucide-react";
 
-const STATUT_LABEL: Record<AgriPlanEcheanceStatut, { label: string; variant: any }> = {
-  a_venir: { label: "À venir", variant: "outline" },
-  du: { label: "Dû", variant: "secondary" },
-  paye: { label: "Payé", variant: "default" },
-  en_retard: { label: "En retard", variant: "destructive" },
-  annule: { label: "Annulé", variant: "outline" },
-};
+type Row = Record<string, any>;
 
-const AgriPlanPage = () => {
-  const { toast } = useToast();
-  const { can, isSuperAdmin } = usePermissions();
-  const [dateDebut, setDateDebut] = useState<string>(new Date().toISOString().slice(0, 10));
-  const { config, setConfig, totaux, echeancier, synthese, fromDatabase, save } = useAgriPlan(dateDebut);
-  const [saving, setSaving] = useState(false);
+const AgriPlan = () => {
+  const { userRoles } = useAuth();
+  const { nomRegion, nomSousPrefecture } = useAgriPlanGeo();
+  const { offre } = useAgriPlanOffre();
+  const [leads, setLeads] = useState<Row[]>([]);
+  const [clients, setClients] = useState<Row[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [q, setQ] = useState("");
+  const [showArchives, setShowArchives] = useState(false);
+  const [leadOpen, setLeadOpen] = useState(false);
+  const [venteOpen, setVenteOpen] = useState(false);
+  const [venteLead, setVenteLead] = useState<AgriPlanLeadLite | null>(null);
+  const [detailId, setDetailId] = useState<string | null>(null);
 
-  const peutAdministrer = isSuperAdmin || can("offres.gerer") || can("parametres.gerer");
+  const canSell = hasPermission(userRoles, PERMISSIONS.AGRIPLAN_VENTES);
 
-  const mep = useMemo(() => echeancier.filter((e) => e.type === "mise_en_place"), [echeancier]);
-  const suivi = useMemo(() => echeancier.filter((e) => e.type === "accompagnement"), [echeancier]);
+  const load = useCallback(async () => {
+    setLoading(true);
+    const [l, c] = await Promise.all([
+      supabase.from("agriplan_leads").select("*").order("created_at", { ascending: false }),
+      supabase.from("agriplan_clients").select("*, agriplan_ventes(montant_total, total_paye, solde)").order("created_at", { ascending: false }),
+    ]);
+    setLeads((l.data || []) as Row[]);
+    setClients((c.data || []) as Row[]);
+    setLoading(false);
+  }, []);
 
-  const handleSave = async () => {
-    setSaving(true);
-    const { error } = await save(config);
-    setSaving(false);
-    if (error) {
-      toast({ variant: "destructive", title: "Erreur", description: getSafeErrorMessage(error) });
-      return;
-    }
-    toast({ title: "Configuration AgriPlan enregistrée" });
-  };
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const renderEcheances = (rows: typeof echeancier) => (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>N°</TableHead>
-          <TableHead>Échéance</TableHead>
-          <TableHead>Déclencheur</TableHead>
-          <TableHead>Date</TableHead>
-          <TableHead className="text-right">Montant</TableHead>
-          <TableHead className="text-right">Payé</TableHead>
-          <TableHead className="text-right">Solde</TableHead>
-          <TableHead>Retard</TableHead>
-          <TableHead>Statut</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {rows.map((e) => (
-          <TableRow key={e.id}>
-            <TableCell>{e.numero_echeance}</TableCell>
-            <TableCell className="font-medium">{e.libelle}</TableCell>
-            <TableCell className="text-muted-foreground text-sm">{e.declencheur}</TableCell>
-            <TableCell>{new Date(e.date_echeance).toLocaleDateString("fr-FR")}</TableCell>
-            <TableCell className="text-right">{formatFCFA(e.montant)}</TableCell>
-            <TableCell className="text-right">{formatFCFA(e.montant_paye)}</TableCell>
-            <TableCell className="text-right">{formatFCFA(e.solde)}</TableCell>
-            <TableCell>{e.jours_retard > 0 ? `${e.jours_retard} j` : "—"}</TableCell>
-            <TableCell>
-              <Badge variant={STATUT_LABEL[e.statut].variant}>{STATUT_LABEL[e.statut].label}</Badge>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+  const match = (r: Row) =>
+    !q.trim() ||
+    [r.nom_complet, r.telephone, r.whatsapp, r.localite, r.numero_client]
+      .filter(Boolean)
+      .some((v: string) => String(v).toLowerCase().includes(q.toLowerCase()));
+
+  const leadsVisibles = useMemo(() => leads.filter((l) => l.statut !== "converti" && match(l)), [leads, q]);
+  const clientsVisibles = useMemo(
+    () => clients.filter((c) => (showArchives ? c.statut === "archive" : c.statut !== "archive") && match(c)),
+    [clients, q, showArchives],
+  );
+
+  const totalVentes = clients.reduce(
+    (s, c) => s + ((c.agriplan_ventes as Row[]) || []).reduce((a, v) => a + Number(v.montant_total || 0), 0),
+    0,
+  );
+  const totalEncaisse = clients.reduce(
+    (s, c) => s + ((c.agriplan_ventes as Row[]) || []).reduce((a, v) => a + Number(v.total_paye || 0), 0),
+    0,
   );
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requiredPermission={PERMISSIONS.VIEW_AGRIPLAN}>
       <MainLayout>
         <div className="space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold">AgriPlan</h1>
-              <p className="text-muted-foreground text-sm">
-                L'offre clé en main pour vos plantations de palmier à huile — suivi professionnel sur {config.dureeMois} mois.
+              <h1 className="text-2xl font-bold sm:text-3xl">AgriPlan</h1>
+              <p className="mt-1 text-sm text-muted-foreground sm:text-base">
+                Parcours commercial AgriPlan : leads, ventes et dossiers clients — offre {offre.nom} ({formatFCFA(offre.prix_total)} / ha).
               </p>
             </div>
-            <Badge variant={fromDatabase ? "default" : "outline"}>
-              {fromDatabase ? "Configuration base de données" : "Configuration par défaut"}
-            </Badge>
+            {canSell && (
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" onClick={() => setLeadOpen(true)}><Plus className="mr-1 h-4 w-4" />Nouveau Lead</Button>
+                <Button onClick={() => { setVenteLead(null); setVenteOpen(true); }}><ShoppingCart className="mr-1 h-4 w-4" />Nouvelle Vente</Button>
+              </div>
+            )}
           </div>
 
-          <div className="grid gap-4 md:grid-cols-4">
-            <Card>
-              <CardHeader className="pb-2"><CardDescription>Prix global de l'offre</CardDescription></CardHeader>
-              <CardContent className="text-2xl font-bold text-primary">{formatFCFA(totaux.total)}</CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2"><CardDescription>A. Mise en place</CardDescription></CardHeader>
-              <CardContent className="text-2xl font-bold">{formatFCFA(totaux.miseEnPlace)}</CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2"><CardDescription>B. Suivi & encadrement</CardDescription></CardHeader>
-              <CardContent className="text-2xl font-bold">{formatFCFA(totaux.accompagnement)}</CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2"><CardDescription>Reste à payer</CardDescription></CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatFCFA(synthese.totalRestant)}</div>
-                <Progress value={synthese.pourcentageAvancement} className="mt-2" />
-                <p className="text-xs text-muted-foreground mt-1">{synthese.pourcentageAvancement}% payé</p>
-              </CardContent>
-            </Card>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <Card><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><Target className="h-4 w-4" />Leads actifs</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{leads.filter((l) => l.statut !== "converti" && l.statut !== "perdu").length}</p></CardContent></Card>
+            <Card><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><Users className="h-4 w-4" />Clients AgriPlan</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{clients.filter((c) => c.statut !== "archive").length}</p></CardContent></Card>
+            <Card><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><Wallet className="h-4 w-4" />Ventes AgriPlan</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{formatFCFA(totalVentes)}</p></CardContent></Card>
+            <Card><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><Wallet className="h-4 w-4" />Encaissé</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{formatFCFA(totalEncaisse)}</p></CardContent></Card>
           </div>
 
-          <Tabs defaultValue="echeancier">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input className="pl-9" placeholder="Rechercher un lead ou un client AgriPlan..." value={q} onChange={(e) => setQ(e.target.value)} />
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch id="archives" checked={showArchives} onCheckedChange={setShowArchives} />
+              <Label htmlFor="archives" className="text-sm">Dossiers archivés</Label>
+            </div>
+          </div>
+
+          <Tabs defaultValue="leads">
             <TabsList>
-              <TabsTrigger value="echeancier">Échéancier</TabsTrigger>
-              <TabsTrigger value="synthese">Synthèse</TabsTrigger>
-              <TabsTrigger value="prestations">Inclus / Non inclus</TabsTrigger>
-              <TabsTrigger value="tarification">Tarification</TabsTrigger>
+              <TabsTrigger value="leads">Leads ({leadsVisibles.length})</TabsTrigger>
+              <TabsTrigger value="clients">Clients ({clientsVisibles.length})</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="echeancier" className="space-y-4">
+            <TabsContent value="leads" className="pt-4">
               <Card>
-                <CardHeader>
-                  <CardTitle>A. Mise en place de la plantation</CardTitle>
-                  <CardDescription>{formatFCFA(totaux.miseEnPlace)} — {mep.length} échéances</CardDescription>
-                </CardHeader>
-                <CardContent className="overflow-x-auto">
-                  <div className="max-w-xs mb-4">
-                    <Label>Date de démarrage</Label>
-                    <Input type="date" value={dateDebut} onChange={(e) => setDateDebut(e.target.value)} />
-                  </div>
-                  {renderEcheances(mep)}
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>B. Suivi et encadrement</CardTitle>
-                  <CardDescription>
-                    {formatFCFA(config.montantTrimestre)} / trimestre pendant {config.dureeMois} mois ({config.nbTrimestres} trimestres) — {formatFCFA(totaux.accompagnement)}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="overflow-x-auto">{renderEcheances(suivi)}</CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="synthese" className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-3">
-                <Card>
-                  <CardHeader className="pb-2"><CardDescription>Total prévu</CardDescription></CardHeader>
-                  <CardContent className="text-xl font-bold">{formatFCFA(synthese.totalPrevu)}</CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2"><CardDescription>Total payé</CardDescription></CardHeader>
-                  <CardContent className="text-xl font-bold">{formatFCFA(synthese.totalPaye)}</CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2"><CardDescription>Total restant</CardDescription></CardHeader>
-                  <CardContent className="text-xl font-bold">{formatFCFA(synthese.totalRestant)}</CardContent>
-                </Card>
-              </div>
-              <Card>
-                <CardHeader><CardTitle className="flex items-center gap-2"><CalendarClock className="h-4 w-4" /> Prochaines échéances</CardTitle></CardHeader>
-                <CardContent className="overflow-x-auto">
-                  {synthese.prochaines.length ? renderEcheances(synthese.prochaines) : <p className="text-muted-foreground text-sm">Aucune échéance à venir.</p>}
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader><CardTitle className="flex items-center gap-2"><TriangleAlert className="h-4 w-4 text-destructive" /> Échéances en retard</CardTitle></CardHeader>
-                <CardContent className="overflow-x-auto">
-                  {synthese.enRetard.length ? renderEcheances(synthese.enRetard) : <p className="text-muted-foreground text-sm">Aucun retard.</p>}
+                <CardContent className="overflow-x-auto p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nom et prénom</TableHead>
+                        <TableHead>Téléphone</TableHead>
+                        <TableHead>Région</TableHead>
+                        <TableHead>Sous-préfecture</TableHead>
+                        <TableHead>Localité</TableHead>
+                        <TableHead>Statut</TableHead>
+                        <TableHead></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {leadsVisibles.map((l) => (
+                        <TableRow key={l.id}>
+                          <TableCell className="font-medium">{l.nom_complet}</TableCell>
+                          <TableCell>{l.telephone}{l.whatsapp ? ` / ${l.whatsapp}` : ""}</TableCell>
+                          <TableCell>{nomRegion(l.region_id)}</TableCell>
+                          <TableCell>{nomSousPrefecture(l.sous_prefecture_id)}</TableCell>
+                          <TableCell>{l.localite || "—"}</TableCell>
+                          <TableCell><Badge variant="outline">{labelOf(AGRIPLAN_LEAD_STATUTS as never, l.statut)}</Badge></TableCell>
+                          <TableCell className="text-right">
+                            {canSell && (
+                              <Button size="sm" onClick={() => { setVenteLead(l as AgriPlanLeadLite); setVenteOpen(true); }}>
+                                Convertir en vente
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {!loading && leadsVisibles.length === 0 && (
+                        <TableRow><TableCell colSpan={7} className="py-8 text-center text-muted-foreground">Aucun lead AgriPlan</TableCell></TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            <TabsContent value="prestations" className="grid gap-4 md:grid-cols-3">
+            <TabsContent value="clients" className="pt-4">
               <Card>
-                <CardHeader><CardTitle className="text-base">Ce qui est inclus</CardTitle></CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  {AGRIPLAN_INCLUS.map((i) => (
-                    <p key={i} className="flex gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />{i}</p>
-                  ))}
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader><CardTitle className="text-base">Non inclus (facturable séparément)</CardTitle></CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  {AGRIPLAN_EXCLUS.map((i) => (
-                    <p key={i} className="flex gap-2"><XCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />{i}</p>
-                  ))}
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader><CardTitle className="text-base">Accompagnement trimestriel</CardTitle></CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  {AGRIPLAN_ACCOMPAGNEMENT.map((i) => <p key={i}>• {i}</p>)}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="tarification">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Tarification administrable</CardTitle>
-                  <CardDescription>
-                    Les montants sont stockés dans la configuration système (catégorie <code>agriplan</code>). Aucune valeur codée en dur.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid gap-4 md:grid-cols-3">
-                    <div>
-                      <Label>Montant par trimestre (FCFA)</Label>
-                      <Input
-                        type="number" min={0} disabled={!peutAdministrer}
-                        value={config.montantTrimestre}
-                        onChange={(e) => setConfig({ ...config, montantTrimestre: Number(e.target.value) })}
-                      />
-                    </div>
-                    <div>
-                      <Label>Nombre de trimestres</Label>
-                      <Input
-                        type="number" min={1} disabled={!peutAdministrer}
-                        value={config.nbTrimestres}
-                        onChange={(e) => setConfig({ ...config, nbTrimestres: Number(e.target.value) })}
-                      />
-                    </div>
-                    <div>
-                      <Label>Durée (mois)</Label>
-                      <Input
-                        type="number" min={1} disabled={!peutAdministrer}
-                        value={config.dureeMois}
-                        onChange={(e) => setConfig({ ...config, dureeMois: Number(e.target.value) })}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label>Tranches de mise en place</Label>
-                    {config.tranchesMiseEnPlace.map((t, idx) => (
-                      <div key={t.numero} className="grid gap-2 md:grid-cols-[2fr_1fr_3fr]">
-                        <Input
-                          value={t.libelle} disabled={!peutAdministrer}
-                          onChange={(e) => {
-                            const next = [...config.tranchesMiseEnPlace];
-                            next[idx] = { ...t, libelle: e.target.value };
-                            setConfig({ ...config, tranchesMiseEnPlace: next });
-                          }}
-                        />
-                        <Input
-                          type="number" min={0} value={t.montant} disabled={!peutAdministrer}
-                          onChange={(e) => {
-                            const next = [...config.tranchesMiseEnPlace];
-                            next[idx] = { ...t, montant: Number(e.target.value) };
-                            setConfig({ ...config, tranchesMiseEnPlace: next });
-                          }}
-                        />
-                        <Input
-                          value={t.declencheur} disabled={!peutAdministrer}
-                          onChange={(e) => {
-                            const next = [...config.tranchesMiseEnPlace];
-                            next[idx] = { ...t, declencheur: e.target.value };
-                            setConfig({ ...config, tranchesMiseEnPlace: next });
-                          }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="rounded-md border p-3 text-sm">
-                    Mise en place <b>{formatFCFA(totaux.miseEnPlace)}</b> + Accompagnement <b>{formatFCFA(totaux.accompagnement)}</b> ={" "}
-                    <b className="text-primary">{formatFCFA(totaux.total)}</b>
-                  </div>
-
-                  {peutAdministrer && (
-                    <Button onClick={handleSave} disabled={saving}>
-                      <Save className="h-4 w-4 mr-2" />
-                      {saving ? "Enregistrement..." : "Enregistrer la configuration"}
-                    </Button>
-                  )}
+                <CardContent className="overflow-x-auto p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>N° client</TableHead>
+                        <TableHead>Nom et prénom</TableHead>
+                        <TableHead>Téléphone</TableHead>
+                        <TableHead>Localité</TableHead>
+                        <TableHead>Total vente</TableHead>
+                        <TableHead>Solde</TableHead>
+                        <TableHead>Dossier</TableHead>
+                        <TableHead></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {clientsVisibles.map((c) => {
+                        const v = ((c.agriplan_ventes as Row[]) || [])[0] || {};
+                        return (
+                          <TableRow key={c.id} className="cursor-pointer" onClick={() => setDetailId(c.id)}>
+                            <TableCell>{c.numero_client}</TableCell>
+                            <TableCell className="font-medium">{c.nom_complet}</TableCell>
+                            <TableCell>{c.telephone}</TableCell>
+                            <TableCell>{c.localite || "—"}</TableCell>
+                            <TableCell>{formatFCFA(v.montant_total)}</TableCell>
+                            <TableCell>{formatFCFA(v.solde)}</TableCell>
+                            <TableCell><Badge variant="outline">{labelOf(AGRIPLAN_ETAPES as never, c.statut_dossier)}</Badge></TableCell>
+                            <TableCell className="text-right"><Button size="sm" variant="outline">Ouvrir</Button></TableCell>
+                          </TableRow>
+                        );
+                      })}
+                      {!loading && clientsVisibles.length === 0 && (
+                        <TableRow><TableCell colSpan={8} className="py-8 text-center text-muted-foreground">Aucun client AgriPlan</TableCell></TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
         </div>
+
+        <AgriPlanLeadDialog open={leadOpen} onOpenChange={setLeadOpen} onSaved={load} />
+        <AgriPlanVenteDialog open={venteOpen} onOpenChange={setVenteOpen} onSaved={load} lead={venteLead} />
+        <AgriPlanClientDetail clientId={detailId} onOpenChange={(v) => !v && setDetailId(null)} onChanged={load} />
       </MainLayout>
     </ProtectedRoute>
   );
 };
 
-export default AgriPlanPage;
+export default AgriPlan;
