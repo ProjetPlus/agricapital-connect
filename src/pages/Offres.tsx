@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OffreAgriPlan from "@/pages/parametres/OffreAgriPlan";
-import { Leaf } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Check, Crown, TrendingUp, Leaf, Plus, Pencil, Loader2, Trash2, Gift, Percent, CheckCircle, XCircle, Edit } from "lucide-react";
