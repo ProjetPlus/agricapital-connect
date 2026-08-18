@@ -15,7 +15,7 @@ import { useGlobalRealtime } from "@/hooks/useGlobalRealtime";
 import {
   LayoutDashboard, Users, Sprout, CreditCard, LogOut, Menu, Receipt,
   BarChart3, Ticket, Wallet, FileText, Settings, UserCircle, Wifi, WifiOff, RefreshCw, Signal,
-  LandPlot, Layers, Search, Target, CloudUpload, CalendarRange, Leaf
+  LandPlot, Layers, Search, Target, CloudUpload, Leaf
 } from "lucide-react";
 
 interface MainLayoutProps { children: ReactNode; }
@@ -29,14 +29,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   useGlobalRealtime();
 
   const menuItems = [
+    { icon: Leaf, label: "AgriPlan", path: "/agriplan", permission: PERMISSIONS.VIEW_AGRIPLAN },
     { icon: LayoutDashboard, label: "Tableau de bord", path: "/dashboard", permission: PERMISSIONS.VIEW_DASHBOARD },
     { icon: Target, label: "Prospects", path: "/leads", permission: PERMISSIONS.VIEW_LEADS },
     { icon: Users, label: "Souscripteurs", path: "/souscriptions", permission: PERMISSIONS.VIEW_SOUSCRIPTIONS },
     { icon: LandPlot, label: "Propriétaires", path: "/proprietaires-terres", permission: PERMISSIONS.VIEW_SOUSCRIPTIONS },
     { icon: Layers, label: "Parcelles", path: "/parcelles", permission: PERMISSIONS.VIEW_PLANTATIONS },
     { icon: Sprout, label: "Plantations", path: "/plantations", permission: PERMISSIONS.VIEW_PLANTATIONS },
-    { icon: CalendarRange, label: "AgriPlan", path: "/agriplan", permission: PERMISSIONS.VIEW_PLANTATIONS },
-    { icon: Leaf, label: "AgriPlant", path: "/agriplant", permission: PERMISSIONS.VIEW_PLANTATIONS },
     { icon: CreditCard, label: "Paiements", path: "/paiements", permission: PERMISSIONS.VIEW_PAIEMENTS },
     { icon: Receipt, label: "Commissions", path: "/commissions", permission: PERMISSIONS.VIEW_COMMISSIONS },
     { icon: Wallet, label: "Portefeuilles", path: "/portefeuilles", permission: PERMISSIONS.VIEW_PORTEFEUILLES },
