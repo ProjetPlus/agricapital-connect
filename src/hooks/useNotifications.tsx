@@ -48,8 +48,10 @@ export const useNotifications = () => {
     fetchNotifications();
 
     // Subscribe to realtime notifications
+    // Subscribe to realtime notifications (unique channel per hook instance:
+    // plusieurs NotificationCenter peuvent être montés simultanément - sidebar + sheet mobile)
     const channel = supabase
-      .channel('notifications-changes')
+      .channel(`notifications-changes-${user.id}-${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         {
