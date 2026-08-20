@@ -138,6 +138,63 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_audit_logs: {
+        Row: {
+          acteur_libelle: string | null
+          acteur_user_id: string | null
+          action: string
+          ancienne_valeur: Json | null
+          cible_libelle: string | null
+          cible_user_id: string | null
+          created_at: string
+          details: string | null
+          entite: string
+          entite_id: string | null
+          id: string
+          ip_address: string | null
+          nouvelle_valeur: Json | null
+          source: string
+          statut: string
+          user_agent: string | null
+        }
+        Insert: {
+          acteur_libelle?: string | null
+          acteur_user_id?: string | null
+          action: string
+          ancienne_valeur?: Json | null
+          cible_libelle?: string | null
+          cible_user_id?: string | null
+          created_at?: string
+          details?: string | null
+          entite: string
+          entite_id?: string | null
+          id?: string
+          ip_address?: string | null
+          nouvelle_valeur?: Json | null
+          source?: string
+          statut?: string
+          user_agent?: string | null
+        }
+        Update: {
+          acteur_libelle?: string | null
+          acteur_user_id?: string | null
+          action?: string
+          ancienne_valeur?: Json | null
+          cible_libelle?: string | null
+          cible_user_id?: string | null
+          created_at?: string
+          details?: string | null
+          entite?: string
+          entite_id?: string | null
+          id?: string
+          ip_address?: string | null
+          nouvelle_valeur?: Json | null
+          source?: string
+          statut?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       agriplan_clients: {
         Row: {
           archived_at: string | null
@@ -151,15 +208,19 @@ export type Database = {
           id: string
           lead_id: string | null
           localite: string | null
+          motif_statut: string | null
           nom_complet: string
           notes: string | null
           numero_client: string | null
           numero_piece: string | null
           piece_identite_url: string | null
+          portail_actif: boolean
           region_id: string | null
           sous_prefecture_id: string | null
           statut: string
           statut_dossier: string
+          suspended_at: string | null
+          suspended_by: string | null
           telephone: string
           type_piece: string | null
           updated_at: string
@@ -178,15 +239,19 @@ export type Database = {
           id?: string
           lead_id?: string | null
           localite?: string | null
+          motif_statut?: string | null
           nom_complet: string
           notes?: string | null
           numero_client?: string | null
           numero_piece?: string | null
           piece_identite_url?: string | null
+          portail_actif?: boolean
           region_id?: string | null
           sous_prefecture_id?: string | null
           statut?: string
           statut_dossier?: string
+          suspended_at?: string | null
+          suspended_by?: string | null
           telephone: string
           type_piece?: string | null
           updated_at?: string
@@ -205,15 +270,19 @@ export type Database = {
           id?: string
           lead_id?: string | null
           localite?: string | null
+          motif_statut?: string | null
           nom_complet?: string
           notes?: string | null
           numero_client?: string | null
           numero_piece?: string | null
           piece_identite_url?: string | null
+          portail_actif?: boolean
           region_id?: string | null
           sous_prefecture_id?: string | null
           statut?: string
           statut_dossier?: string
+          suspended_at?: string | null
+          suspended_by?: string | null
           telephone?: string
           type_piece?: string | null
           updated_at?: string
@@ -428,6 +497,53 @@ export type Database = {
           },
         ]
       }
+      agriplan_lead_relances: {
+        Row: {
+          canal: string
+          commentaire: string | null
+          commercial_id: string | null
+          created_at: string
+          date_relance: string
+          id: string
+          lead_id: string
+          prochaine_relance: string | null
+          resultat: string
+          updated_at: string
+        }
+        Insert: {
+          canal?: string
+          commentaire?: string | null
+          commercial_id?: string | null
+          created_at?: string
+          date_relance?: string
+          id?: string
+          lead_id: string
+          prochaine_relance?: string | null
+          resultat?: string
+          updated_at?: string
+        }
+        Update: {
+          canal?: string
+          commentaire?: string | null
+          commercial_id?: string | null
+          created_at?: string
+          date_relance?: string
+          id?: string
+          lead_id?: string
+          prochaine_relance?: string | null
+          resultat?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agriplan_lead_relances_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "agriplan_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agriplan_leads: {
         Row: {
           assigned_to: string | null
@@ -436,10 +552,13 @@ export type Database = {
           converti_client_id: string | null
           created_at: string
           created_by: string | null
+          derniere_relance_at: string | null
           id: string
           localisation: string | null
           localite: string | null
+          nb_relances: number
           nom_complet: string
+          prochaine_relance_at: string | null
           region_id: string | null
           sous_prefecture_id: string | null
           statut: string
@@ -454,10 +573,13 @@ export type Database = {
           converti_client_id?: string | null
           created_at?: string
           created_by?: string | null
+          derniere_relance_at?: string | null
           id?: string
           localisation?: string | null
           localite?: string | null
+          nb_relances?: number
           nom_complet: string
+          prochaine_relance_at?: string | null
           region_id?: string | null
           sous_prefecture_id?: string | null
           statut?: string
@@ -472,10 +594,13 @@ export type Database = {
           converti_client_id?: string | null
           created_at?: string
           created_by?: string | null
+          derniere_relance_at?: string | null
           id?: string
           localisation?: string | null
           localite?: string | null
+          nb_relances?: number
           nom_complet?: string
+          prochaine_relance_at?: string | null
           region_id?: string | null
           sous_prefecture_id?: string | null
           statut?: string
@@ -2044,6 +2169,57 @@ export type Database = {
             referencedColumns: ["souscripteur_id"]
           },
         ]
+      }
+      notification_templates: {
+        Row: {
+          actif: boolean
+          canal: string
+          code: string
+          contenu: string
+          created_at: string
+          created_by: string | null
+          evenement: string
+          id: string
+          nom: string
+          parcours: string
+          sujet: string | null
+          updated_at: string
+          updated_by: string | null
+          variables: Json
+        }
+        Insert: {
+          actif?: boolean
+          canal?: string
+          code: string
+          contenu: string
+          created_at?: string
+          created_by?: string | null
+          evenement: string
+          id?: string
+          nom: string
+          parcours?: string
+          sujet?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          variables?: Json
+        }
+        Update: {
+          actif?: boolean
+          canal?: string
+          code?: string
+          contenu?: string
+          created_at?: string
+          created_by?: string | null
+          evenement?: string
+          id?: string
+          nom?: string
+          parcours?: string
+          sujet?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          variables?: Json
+        }
+        Relationships: []
       }
       notifications: {
         Row: {
@@ -4025,6 +4201,7 @@ export type Database = {
     }
     Functions: {
       agriplan_client_owner: { Args: { _client_id: string }; Returns: boolean }
+      agriplan_mon_client_id: { Args: never; Returns: string }
       agriplan_recompute_vente: {
         Args: { _vente_id: string }
         Returns: undefined
@@ -4073,6 +4250,25 @@ export type Database = {
           p_type: string
         }
         Returns: undefined
+      }
+      offre_prix_effectif: {
+        Args: never
+        Returns: {
+          code: string
+          depot_initial_base: number
+          depot_initial_effectif: number
+          mensualite_base: number
+          mensualite_effective: number
+          montant_total_base: number
+          montant_total_effectif: number
+          nom: string
+          offre_id: string
+          promotion_cible: string
+          promotion_id: string
+          promotion_nom: string
+          reduction_montant: number
+          reduction_pct: number
+        }[]
       }
       reassign_lead: {
         Args: { _lead_id: string; _motif?: string; _new_owner: string }
