@@ -10,15 +10,17 @@ import { AGRIPLAN_ETAPES, AGRIPLAN_LEAD_STATUTS, formatFCFA, labelOf } from "@/l
 import AgriPlanLeadDialog from "@/components/agriplan/AgriPlanLeadDialog";
 import AgriPlanVenteDialog, { AgriPlanLeadLite } from "@/components/agriplan/AgriPlanVenteDialog";
 import AgriPlanClientDetail from "@/components/agriplan/AgriPlanClientDetail";
+import AgriPlanLeadRelances from "@/components/agriplan/AgriPlanLeadRelances";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Plus, ShoppingCart, Search, Users, Target, Wallet } from "lucide-react";
+import { Plus, ShoppingCart, Search, Users, Target, Wallet, PhoneCall, AlertTriangle } from "lucide-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+
 
 type Row = Record<string, any>;
 
@@ -30,11 +32,12 @@ const AgriPlan = () => {
   const [clients, setClients] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
-  const [showArchives, setShowArchives] = useState(false);
   const [leadOpen, setLeadOpen] = useState(false);
   const [venteOpen, setVenteOpen] = useState(false);
   const [venteLead, setVenteLead] = useState<AgriPlanLeadLite | null>(null);
+  const [relanceLead, setRelanceLead] = useState<Row | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
+
 
   const canSell = hasPermission(userRoles, PERMISSIONS.AGRIPLAN_VENTES);
 
@@ -59,11 +62,16 @@ const AgriPlan = () => {
       .filter(Boolean)
       .some((v: string) => String(v).toLowerCase().includes(q.toLowerCase()));
 
+  const aRelancer = (l: Row) =>
+    !!l.prochaine_relance_at && new Date(l.prochaine_relance_at) <= new Date() && l.statut !== "converti" && l.statut !== "perdu";
+
   const leadsVisibles = useMemo(() => leads.filter((l) => l.statut !== "converti" && match(l)), [leads, q]);
+  const leadsARelancer = useMemo(() => leads.filter(aRelancer).length, [leads]);
   const clientsVisibles = useMemo(
-    () => clients.filter((c) => (showArchives ? c.statut === "archive" : c.statut !== "archive") && match(c)),
-    [clients, q, showArchives],
+    () => clients.filter((c) => c.statut !== "archive" && match(c)),
+    [clients, q],
   );
+
 
   const totalVentes = clients.reduce(
     (s, c) => s + ((c.agriplan_ventes as Row[]) || []).reduce((a, v) => a + Number(v.montant_total || 0), 0),
@@ -105,11 +113,13 @@ const AgriPlan = () => {
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input className="pl-9" placeholder="Rechercher un lead ou un client AgriPlan..." value={q} onChange={(e) => setQ(e.target.value)} />
             </div>
-            <div className="flex items-center gap-2">
-              <Switch id="archives" checked={showArchives} onCheckedChange={setShowArchives} />
-              <Label htmlFor="archives" className="text-sm">Dossiers archivés</Label>
-            </div>
+            {leadsARelancer > 0 && (
+              <Badge variant="destructive" className="gap-1">
+                <AlertTriangle className="h-3 w-3" />{leadsARelancer} prospect(s) à relancer
+              </Badge>
+            )}
           </div>
+
 
           <Tabs defaultValue="leads">
             <TabsList>
