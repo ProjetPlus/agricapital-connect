@@ -62,11 +62,16 @@ const AgriPlan = () => {
       .filter(Boolean)
       .some((v: string) => String(v).toLowerCase().includes(q.toLowerCase()));
 
+  const aRelancer = (l: Row) =>
+    !!l.prochaine_relance_at && new Date(l.prochaine_relance_at) <= new Date() && l.statut !== "converti" && l.statut !== "perdu";
+
   const leadsVisibles = useMemo(() => leads.filter((l) => l.statut !== "converti" && match(l)), [leads, q]);
+  const leadsARelancer = useMemo(() => leads.filter(aRelancer).length, [leads]);
   const clientsVisibles = useMemo(
-    () => clients.filter((c) => (showArchives ? c.statut === "archive" : c.statut !== "archive") && match(c)),
-    [clients, q, showArchives],
+    () => clients.filter((c) => c.statut !== "archive" && match(c)),
+    [clients, q],
   );
+
 
   const totalVentes = clients.reduce(
     (s, c) => s + ((c.agriplan_ventes as Row[]) || []).reduce((a, v) => a + Number(v.montant_total || 0), 0),
