@@ -137,7 +137,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error: { message: 'Identifiants incorrects (mode hors ligne)' } };
       }
 
-      // Online: resolve username to email (edge function sécurisée, repli RPC)
+      // Online: resolve username to email (edge function sécurisée uniquement)
       if (!usernameOrEmail.includes('@')) {
         let resolved: string | null = null;
 
@@ -150,12 +150,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           resolved = null;
         }
 
-        if (!resolved) {
-          const { data: rpcEmail } = await (supabase as any).rpc('resolve_username_email', {
-            _username: usernameOrEmail,
-          });
-          resolved = (rpcEmail as string) || null;
-        }
 
         if (!resolved) {
           toast({
