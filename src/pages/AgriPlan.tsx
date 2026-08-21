@@ -32,11 +32,12 @@ const AgriPlan = () => {
   const [clients, setClients] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
-  const [showArchives, setShowArchives] = useState(false);
   const [leadOpen, setLeadOpen] = useState(false);
   const [venteOpen, setVenteOpen] = useState(false);
   const [venteLead, setVenteLead] = useState<AgriPlanLeadLite | null>(null);
+  const [relanceLead, setRelanceLead] = useState<Row | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
+
 
   const canSell = hasPermission(userRoles, PERMISSIONS.AGRIPLAN_VENTES);
 
