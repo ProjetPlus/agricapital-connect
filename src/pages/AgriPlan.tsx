@@ -10,15 +10,17 @@ import { AGRIPLAN_ETAPES, AGRIPLAN_LEAD_STATUTS, formatFCFA, labelOf } from "@/l
 import AgriPlanLeadDialog from "@/components/agriplan/AgriPlanLeadDialog";
 import AgriPlanVenteDialog, { AgriPlanLeadLite } from "@/components/agriplan/AgriPlanVenteDialog";
 import AgriPlanClientDetail from "@/components/agriplan/AgriPlanClientDetail";
+import AgriPlanLeadRelances from "@/components/agriplan/AgriPlanLeadRelances";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Plus, ShoppingCart, Search, Users, Target, Wallet } from "lucide-react";
+import { Plus, ShoppingCart, Search, Users, Target, Wallet, PhoneCall, AlertTriangle } from "lucide-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+
 
 type Row = Record<string, any>;
 
