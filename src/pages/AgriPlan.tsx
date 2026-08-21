@@ -107,11 +107,13 @@ const AgriPlan = () => {
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input className="pl-9" placeholder="Rechercher un lead ou un client AgriPlan..." value={q} onChange={(e) => setQ(e.target.value)} />
             </div>
-            <div className="flex items-center gap-2">
-              <Switch id="archives" checked={showArchives} onCheckedChange={setShowArchives} />
-              <Label htmlFor="archives" className="text-sm">Dossiers archivés</Label>
-            </div>
+            {leadsARelancer > 0 && (
+              <Badge variant="destructive" className="gap-1">
+                <AlertTriangle className="h-3 w-3" />{leadsARelancer} prospect(s) à relancer
+              </Badge>
+            )}
           </div>
+
 
           <Tabs defaultValue="leads">
             <TabsList>
