@@ -34,7 +34,15 @@ async function authorize(req: Request, admin: any): Promise<Response | null> {
 
 const DEMO_EMAIL = "demo@agricapital.ci";
 const DEMO_USERNAME = "agricapital";
-const DEMO_PASSWORD = "AgriCapital";
+
+/** Génère un mot de passe aléatoire fort. Jamais codé en dur dans le dépôt. */
+function generatePassword(): string {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789-_";
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("");
+}
+
 
 /** Crée (ou réinitialise) le compte de démonstration en lecture seule. Idempotent. */
 serve(async (req) => {
