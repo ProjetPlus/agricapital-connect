@@ -34,7 +34,15 @@ async function authorize(req: Request, admin: any): Promise<Response | null> {
 
 const DEMO_EMAIL = "demo@agricapital.ci";
 const DEMO_USERNAME = "agricapital";
-const DEMO_PASSWORD = "AgriCapital";
+
+/** Génère un mot de passe aléatoire fort. Jamais codé en dur dans le dépôt. */
+function generatePassword(): string {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789-_";
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("");
+}
+
 
 /** Crée (ou réinitialise) le compte de démonstration en lecture seule. Idempotent. */
 serve(async (req) => {
@@ -49,6 +57,10 @@ serve(async (req) => {
     const denied = await authorize(req, admin);
     if (denied) return denied;
 
+    // Mot de passe généré aléatoirement à chaque exécution, ou fourni via le secret DEMO_PASSWORD.
+    const demoPassword = Deno.env.get("DEMO_PASSWORD") || generatePassword();
+    const generated = !Deno.env.get("DEMO_PASSWORD");
+
     let userId: string | null = null;
     for (let page = 1; page <= 10; page++) {
       const { data } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
@@ -58,11 +70,11 @@ serve(async (req) => {
     }
 
     if (userId) {
-      await admin.auth.admin.updateUserById(userId, { password: DEMO_PASSWORD, email_confirm: true });
+      await admin.auth.admin.updateUserById(userId, { password: demoPassword, email_confirm: true });
     } else {
       const { data, error } = await admin.auth.admin.createUser({
         email: DEMO_EMAIL,
-        password: DEMO_PASSWORD,
+        password: demoPassword,
         email_confirm: true,
         user_metadata: { nom_complet: "Compte Démonstration" },
       });
@@ -78,7 +90,18 @@ serve(async (req) => {
 
     await admin.from("user_roles").upsert({ user_id: userId, role: "demo" }, { onConflict: "user_id,role" });
 
-    return json({ success: true, username: DEMO_USERNAME, user_id: userId });
+    // Le mot de passe n'est renvoyé qu'à l'administrateur appelant, une seule fois.
+    return json({
+      success: true,
+      username: DEMO_USERNAME,
+      user_id: userId,
+      password: demoPassword,
+      password_generated: generated,
+      note: generated
+        ? "Mot de passe généré aléatoirement. Notez-le maintenant : il n'est pas stocké et ne sera plus affiché."
+        : "Mot de passe issu du secret DEMO_PASSWORD.",
+    });
+
   } catch (e) {
     console.error("seed-demo-account error", e);
     return json({ error: "Erreur interne" }, 500);
