@@ -33,6 +33,7 @@ const JournalAudit = () => {
 
 
   const load = async () => {
+    if (!autorise) { setLoading(false); return; }
     setLoading(true);
     const { data } = await (supabase as any)
       .from("admin_audit_logs")
@@ -43,7 +44,7 @@ const JournalAudit = () => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [autorise]);
 
   const entites = useMemo(
     () => Array.from(new Set(logs.map((l) => l.entite))).sort(),
