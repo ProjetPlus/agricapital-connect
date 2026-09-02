@@ -72,11 +72,12 @@ serve(async (req) => {
       }, 409);
     }
 
-    // Création du compte auth (sans rôle → aucun accès avant validation admin)
+    // Création du compte auth SANS confirmation d'email :
+    // le demandeur doit prouver qu'il possède l'adresse avant toute activation.
     const { data: created, error: createErr } = await admin.auth.admin.createUser({
       email: cleanEmail,
       password: String(password),
-      email_confirm: true,
+      email_confirm: false,
       user_metadata: { nom_complet, username: cleanUsername, pending_role: role_souhaite },
     });
 
@@ -89,6 +90,34 @@ serve(async (req) => {
     }
 
     const userId = created.user!.id;
+
+    // Envoi du lien de vérification d'adresse email
+    try {
+      const siteUrl = Deno.env.get("SITE_URL") ?? "https://app.agricapital.ci";
+      const { data: linkData } = await admin.auth.admin.generateLink({
+        type: "signup",
+        email: cleanEmail,
+        password: String(password),
+        options: { redirectTo: `${siteUrl}/login` },
+      });
+      const actionLink = (linkData as any)?.properties?.action_link;
+      const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+      if (actionLink && RESEND_API_KEY) {
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            from: "AgriCapital <no-reply@agricapital.ci>",
+            to: [cleanEmail],
+            subject: "Confirmez votre adresse email — AgriCapital",
+            html: `<p>Bonjour ${nom_complet},</p><p>Confirmez votre adresse email pour que votre demande de compte puisse être validée :</p><p><a href="${actionLink}">Confirmer mon adresse email</a></p>`,
+          }),
+        });
+      }
+    } catch (linkErr) {
+      console.warn("verification email non envoyée", linkErr);
+    }
+
 
     // Profil inactif jusqu'à validation
     await admin.from("profiles").upsert({
