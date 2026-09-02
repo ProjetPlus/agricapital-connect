@@ -66,31 +66,34 @@ const Login = () => {
             className="w-full max-w-md h-auto mx-auto mb-8 drop-shadow-2xl"
           />
           <p className="text-white/80 text-lg mb-8">
-            Plateforme de Gestion des Planteurs & Plantations
+            Plateforme intégrée de gestion agricole : souscriptions, foncier, plantations, AgriPlan et paiements
           </p>
-          
-          <div className="flex items-center justify-center gap-8 text-white/70">
-            <div className="text-center">
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-2 text-white font-bold">1</div>
-              <span className="text-sm">Souscription</span>
+
+          <div className="grid grid-cols-2 gap-4 text-left text-white/75">
+            <div className="rounded-lg bg-white/10 p-3">
+              <p className="text-sm font-semibold text-white">Souscriptions & Offres</p>
+              <p className="text-xs">PalmInvest, TerraPalm, AgriPlan</p>
             </div>
-            <div className="w-8 h-px bg-white/30" />
-            <div className="text-center">
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-2 text-white font-bold">2</div>
-              <span className="text-sm">Plantation</span>
+            <div className="rounded-lg bg-white/10 p-3">
+              <p className="text-sm font-semibold text-white">Foncier & Parcelles</p>
+              <p className="text-xs">Conventions, lots, cartographie</p>
             </div>
-            <div className="w-8 h-px bg-white/30" />
-            <div className="text-center">
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-2 text-white font-bold">3</div>
-              <span className="text-sm">Production</span>
+            <div className="rounded-lg bg-white/10 p-3">
+              <p className="text-sm font-semibold text-white">Plantations & Suivi</p>
+              <p className="text-xs">Visites techniques, récoltes</p>
+            </div>
+            <div className="rounded-lg bg-white/10 p-3">
+              <p className="text-sm font-semibold text-white">Paiements & Commissions</p>
+              <p className="text-xs">Dépôt initial, échéances, portefeuilles</p>
             </div>
           </div>
         </div>
-        
+
         <p className="absolute bottom-6 text-white/50 text-xs">
-          © 2025 AgriCapital - Le partenaire idéal des producteurs agricoles
+          © {new Date().getFullYear()} AgriCapital - Investir la terre. Cultiver l'avenir.
         </p>
       </div>
+
 
       {/* Panneau droit - Formulaire de connexion */}
       <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-8 bg-background min-h-screen lg:min-h-0">

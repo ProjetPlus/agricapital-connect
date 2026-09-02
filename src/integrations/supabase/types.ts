@@ -1170,6 +1170,42 @@ export type Database = {
           },
         ]
       }
+      app_roles: {
+        Row: {
+          actif: boolean
+          code: string
+          court: string | null
+          created_at: string
+          description: string | null
+          niveau: number
+          niveau_label: string | null
+          nom: string
+          updated_at: string
+        }
+        Insert: {
+          actif?: boolean
+          code: string
+          court?: string | null
+          created_at?: string
+          description?: string | null
+          niveau?: number
+          niveau_label?: string | null
+          nom: string
+          updated_at?: string
+        }
+        Update: {
+          actif?: boolean
+          code?: string
+          court?: string | null
+          created_at?: string
+          description?: string | null
+          niveau?: number
+          niveau_label?: string | null
+          nom?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       commissions: {
         Row: {
           annee_contrat: number | null
@@ -1501,6 +1537,39 @@ export type Database = {
           },
         ]
       }
+      departements_entreprise: {
+        Row: {
+          actif: boolean
+          code: string
+          created_at: string
+          id: string
+          nom: string
+          ordre: number
+          requiert_couverture: boolean
+          updated_at: string
+        }
+        Insert: {
+          actif?: boolean
+          code: string
+          created_at?: string
+          id: string
+          nom: string
+          ordre?: number
+          requiert_couverture?: boolean
+          updated_at?: string
+        }
+        Update: {
+          actif?: boolean
+          code?: string
+          created_at?: string
+          id?: string
+          nom?: string
+          ordre?: number
+          requiert_couverture?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       districts: {
         Row: {
           code: string | null
@@ -1786,6 +1855,64 @@ export type Database = {
         }
         Relationships: []
       }
+      historique_actions: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          souscripteur_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          souscripteur_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          souscripteur_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "historique_actions_souscripteur_id_fkey"
+            columns: ["souscripteur_id"]
+            isOneToOne: false
+            referencedRelation: "souscripteurs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "historique_actions_souscripteur_id_fkey"
+            columns: ["souscripteur_id"]
+            isOneToOne: false
+            referencedRelation: "v_souscripteur_synthese"
+            referencedColumns: ["souscripteur_id"]
+          },
+          {
+            foreignKeyName: "historique_actions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       historique_activites: {
         Row: {
           action: string
@@ -1827,6 +1954,63 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      interventions_techniques: {
+        Row: {
+          cout: number | null
+          created_at: string
+          date_intervention: string
+          id: string
+          observations: string | null
+          plantation_id: string | null
+          recommandations: string | null
+          statut: string
+          technicien_id: string | null
+          type_intervention: string
+          updated_at: string
+        }
+        Insert: {
+          cout?: number | null
+          created_at?: string
+          date_intervention?: string
+          id?: string
+          observations?: string | null
+          plantation_id?: string | null
+          recommandations?: string | null
+          statut?: string
+          technicien_id?: string | null
+          type_intervention?: string
+          updated_at?: string
+        }
+        Update: {
+          cout?: number | null
+          created_at?: string
+          date_intervention?: string
+          id?: string
+          observations?: string | null
+          plantation_id?: string | null
+          recommandations?: string | null
+          statut?: string
+          technicien_id?: string | null
+          type_intervention?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interventions_techniques_plantation_id_fkey"
+            columns: ["plantation_id"]
+            isOneToOne: false
+            referencedRelation: "plantations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interventions_techniques_technicien_id_fkey"
+            columns: ["technicien_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       kkiapay_events: {
         Row: {
@@ -2692,6 +2876,60 @@ export type Database = {
           },
         ]
       }
+      photos_plantation: {
+        Row: {
+          created_at: string
+          date_prise: string
+          description: string | null
+          id: string
+          phase: string | null
+          plantation_id: string | null
+          type_photo: string
+          updated_at: string
+          uploaded_by: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          date_prise?: string
+          description?: string | null
+          id?: string
+          phase?: string | null
+          plantation_id?: string | null
+          type_photo?: string
+          updated_at?: string
+          uploaded_by?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string
+          date_prise?: string
+          description?: string | null
+          id?: string
+          phase?: string | null
+          plantation_id?: string | null
+          type_photo?: string
+          updated_at?: string
+          uploaded_by?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photos_plantation_plantation_id_fkey"
+            columns: ["plantation_id"]
+            isOneToOne: false
+            referencedRelation: "plantations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photos_plantation_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plantations: {
         Row: {
           age_plants: number | null
@@ -3522,6 +3760,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      role_permissions: {
+        Row: {
+          created_at: string
+          id: string
+          permission_code: string
+          role_code: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          permission_code: string
+          role_code: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          permission_code?: string
+          role_code?: string
+        }
+        Relationships: []
       }
       sous_prefectures: {
         Row: {

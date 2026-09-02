@@ -7,9 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { History, RefreshCw, Search } from "lucide-react";
+import { History, RefreshCw, Search, ShieldAlert } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { useAuth } from "@/hooks/useAuth";
+import { PERMISSIONS, hasPermission } from "@/lib/roles";
 
 type Row = Record<string, any>;
 
@@ -20,6 +22,8 @@ const ACTION_LABELS: Record<string, string> = {
 };
 
 const JournalAudit = () => {
+  const { userRoles } = useAuth();
+  const autorise = hasPermission(userRoles, PERMISSIONS.VIEW_AUDIT);
   const [logs, setLogs] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
@@ -27,7 +31,9 @@ const JournalAudit = () => {
   const [action, setAction] = useState("toutes");
   const [detail, setDetail] = useState<Row | null>(null);
 
+
   const load = async () => {
+    if (!autorise) { setLoading(false); return; }
     setLoading(true);
     const { data } = await (supabase as any)
       .from("admin_audit_logs")
@@ -38,7 +44,7 @@ const JournalAudit = () => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [autorise]);
 
   const entites = useMemo(
     () => Array.from(new Set(logs.map((l) => l.entite))).sort(),
@@ -52,6 +58,20 @@ const JournalAudit = () => {
     return [l.acteur_libelle, l.cible_libelle, l.entite, l.details, l.entite_id]
       .filter(Boolean).join(" ").toLowerCase().includes(q.toLowerCase());
   }), [logs, q, entite, action]);
+
+  if (!autorise) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
+          <ShieldAlert className="h-10 w-10 text-muted-foreground" />
+          <p className="font-medium">Accès restreint</p>
+          <p className="max-w-sm text-sm text-muted-foreground">
+            Le journal de traçabilité est réservé au Super Admin et au Responsable des Opérations.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
