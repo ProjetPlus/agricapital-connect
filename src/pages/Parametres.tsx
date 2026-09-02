@@ -53,7 +53,7 @@ const Parametres = () => {
     { value: 'statuts', label: 'Statuts', icon: List, permission: PERMISSIONS.MANAGE_SYSTEM, component: GestionStatuts },
     { value: 'champs', label: 'Champs', icon: Settings2, permission: PERMISSIONS.MANAGE_SYSTEM, component: ChampsPersonnalises },
     { value: 'notifications', label: 'Notifs', icon: Bell, permission: PERMISSIONS.MANAGE_SYSTEM, component: GestionNotifications },
-    { value: 'tracabilite', label: 'Traçabilité', mobileLabel: 'Traces', icon: History, permission: PERMISSIONS.VIEW_PARAMETRES, component: JournalAudit },
+    { value: 'tracabilite', label: 'Traçabilité', mobileLabel: 'Traces', icon: History, permission: PERMISSIONS.VIEW_AUDIT, component: JournalAudit },
     { value: 'database', label: 'BDD', icon: Database, permission: PERMISSIONS.MANAGE_SYSTEM, component: GestionBaseDonnees },
     { value: 'systeme', label: 'Système', icon: Globe, permission: PERMISSIONS.MANAGE_SYSTEM, component: ConfigurationSysteme },
     { value: 'offline', label: 'Hors ligne', icon: HardDrive, permission: PERMISSIONS.MANAGE_SYSTEM, component: SyncQueue },
