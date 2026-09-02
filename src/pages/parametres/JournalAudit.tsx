@@ -59,6 +59,20 @@ const JournalAudit = () => {
       .filter(Boolean).join(" ").toLowerCase().includes(q.toLowerCase());
   }), [logs, q, entite, action]);
 
+  if (!autorise) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
+          <ShieldAlert className="h-10 w-10 text-muted-foreground" />
+          <p className="font-medium">Accès restreint</p>
+          <p className="max-w-sm text-sm text-muted-foreground">
+            Le journal de traçabilité est réservé au Super Admin et au Responsable des Opérations.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <Card>
