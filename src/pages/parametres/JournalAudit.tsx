@@ -22,12 +22,15 @@ const ACTION_LABELS: Record<string, string> = {
 };
 
 const JournalAudit = () => {
+  const { userRoles } = useAuth();
+  const autorise = hasPermission(userRoles, PERMISSIONS.VIEW_AUDIT);
   const [logs, setLogs] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [entite, setEntite] = useState("toutes");
   const [action, setAction] = useState("toutes");
   const [detail, setDetail] = useState<Row | null>(null);
+
 
   const load = async () => {
     setLoading(true);
