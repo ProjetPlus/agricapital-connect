@@ -76,6 +76,21 @@ serve(async (req) => {
     let userId: string | null = reqRow.auth_user_id;
     let tempPassword: string | null = null;
 
+    // L'adresse email du demandeur doit être vérifiée avant toute activation.
+    if (userId) {
+      step = "check_email_verified";
+      const { data: existingUser } = await admin.auth.admin.getUserById(userId);
+      if (!existingUser?.user?.email_confirmed_at) {
+        return json({
+          error: "Adresse email non vérifiée : le demandeur doit confirmer son email avant validation.",
+          step,
+          logs,
+        }, 409);
+      }
+    }
+
+
+
     if (!userId) {
       step = "find_existing_auth_user";
       const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
