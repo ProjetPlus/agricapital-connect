@@ -11,6 +11,7 @@ import AIAssistant from "@/components/ai/AIAssistant";
 import logoV2 from "@/assets/logo-agricapital-v2.png";
 import { cn } from "@/lib/utils";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
+import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { useGlobalRealtime } from "@/hooks/useGlobalRealtime";
 import {
   LayoutDashboard, Users, Sprout, CreditCard, LogOut, Menu, Receipt,
@@ -26,6 +27,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const { isOnline, isSyncing, syncNow, pendingCount, networkQuality } = useOfflineSync();
+  const photoUrl = useSignedUrl('photos-profils', profile?.photo_url);
   useGlobalRealtime();
 
   const menuItems = [
