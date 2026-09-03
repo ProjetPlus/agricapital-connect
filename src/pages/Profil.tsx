@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Phone, Mail, MapPin, Shield, Camera, UserPlus, Save } from "lucide-react";
 import { getSafeErrorMessage } from "@/lib/safeError";
+import { useSignedUrl } from "@/hooks/useSignedUrl";
 
 const Profil = () => {
   const { user, profile: authProfile } = useAuth();
@@ -20,6 +21,7 @@ const Profil = () => {
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<any>({});
   const [uploading, setUploading] = useState(false);
+  const photoUrl = useSignedUrl('photos-profils', profile.photo_url);
 
   useEffect(() => {
     if (user) fetchProfile();
@@ -116,7 +118,7 @@ const Profil = () => {
               <div className="flex flex-col sm:flex-row items-center gap-6">
                 <div className="relative">
                   <Avatar className="h-24 w-24">
-                    <AvatarImage src={profile.photo_url || ''} />
+                    <AvatarImage src={photoUrl || ''} />
                     <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
                       {profile.nom_complet?.split(' ').map((n: string) => n[0]).join('').slice(0, 2) || 'US'}
                     </AvatarFallback>
