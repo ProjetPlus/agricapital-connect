@@ -17,7 +17,9 @@ import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Archive, FileText, Plus, Send, Upload } from "lucide-react";
+import { logAdminAction } from "@/lib/audit";
+import { Archive, FileText, PauseCircle, PlayCircle, Plus, Send, Upload, UserCog } from "lucide-react";
+
 
 interface Props {
   clientId: string | null;
