@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import logoGreen from "@/assets/logo-green.png";
 import { User, Mail, Phone, Briefcase, MapPin, FileText, KeyRound, AtSign } from "lucide-react";
 import { getSafeErrorMessage } from "@/lib/safeError";
+import { SignedImg } from "@/hooks/useSignedUrl";
 
 const ROLES = [
   { value: "commercial", label: "Commercial (Comm)" },

@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CheckCircle, XCircle, Eye, Trash2 } from "lucide-react";
 import { getSafeErrorMessage } from "@/lib/safeError";
+import { SignedImg } from "@/hooks/useSignedUrl";
 
 const ROLES = [
   "commercial", "technicien", "chef_equipe_commercial", "chef_equipe_technique",
