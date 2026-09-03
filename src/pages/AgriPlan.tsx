@@ -237,6 +237,8 @@ const AgriPlan = () => {
         <AgriPlanLeadDialog open={leadOpen} onOpenChange={setLeadOpen} onSaved={load} />
         <AgriPlanVenteDialog open={venteOpen} onOpenChange={setVenteOpen} onSaved={load} lead={venteLead} />
         <AgriPlanClientDetail clientId={detailId} onOpenChange={(v) => !v && setDetailId(null)} onChanged={load} />
+        <AgriPlanLeadRelances lead={relanceLead} onOpenChange={(v) => !v && setRelanceLead(null)} onChanged={load} />
+
       </MainLayout>
     </ProtectedRoute>
   );
