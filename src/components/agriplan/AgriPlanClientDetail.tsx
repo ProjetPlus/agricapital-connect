@@ -253,21 +253,87 @@ export default function AgriPlanClientDetail({ clientId, onOpenChange, onChanged
     onChanged();
   };
 
-  const archiver = async (archive: boolean) => {
+  const changerStatutCompte = async (nouveau: "actif" | "suspendu" | "archive") => {
     if (!clientId) return;
-    await supabase
+    const ancien = client?.statut || "actif";
+    const { error } = await supabase
       .from("agriplan_clients")
       .update({
-        statut: archive ? "archive" : "actif",
-        archived_at: archive ? new Date().toISOString() : null,
-        archived_by: archive ? user?.id || null : null,
+        statut: nouveau,
+        archived_at: nouveau === "archive" ? new Date().toISOString() : null,
+        archived_by: nouveau === "archive" ? user?.id || null : null,
       })
       .eq("id", clientId);
-    await trace("client", clientId, archive ? "dossier_archive" : "dossier_reactive", "");
-    toast.success(archive ? "Dossier archivé (données conservées)" : "Dossier réactivé");
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    const actions: Record<string, string> = { actif: "compte_reactive", suspendu: "compte_suspendu", archive: "compte_archive" };
+    await logAdminAction({
+      action: actions[nouveau],
+      entite: "agriplan_clients",
+      entite_id: clientId,
+      cible_libelle: `${client?.nom_complet || ""} (${client?.numero_client || ""})`,
+      ancienne_valeur: { statut: ancien },
+      nouvelle_valeur: { statut: nouveau },
+      details: `Compte client AgriPlan ${nouveau}`,
+    });
+    await trace("client", clientId, actions[nouveau], `Statut du compte : ${ancien} → ${nouveau}`);
+    toast.success(
+      nouveau === "archive" ? "Compte archivé (données conservées)" : nouveau === "suspendu" ? "Compte suspendu" : "Compte réactivé",
+    );
     load();
     onChanged();
   };
+
+  const [contactOpen, setContactOpen] = useState(false);
+  const [contactForm, setContactForm] = useState({ telephone: "", whatsapp: "", email: "", contact_nom: "", contact_telephone: "" });
+
+  const ouvrirContact = () => {
+    setContactForm({
+      telephone: client?.telephone || "",
+      whatsapp: client?.whatsapp || "",
+      email: client?.email || "",
+      contact_nom: client?.contact_nom || "",
+      contact_telephone: client?.contact_telephone || "",
+    });
+    setContactOpen(true);
+  };
+
+  const enregistrerContact = async () => {
+    if (!clientId) return;
+    const ancien = {
+      telephone: client?.telephone, whatsapp: client?.whatsapp, email: client?.email,
+      contact_nom: client?.contact_nom, contact_telephone: client?.contact_telephone,
+    };
+    const nouveau = {
+      telephone: contactForm.telephone.trim(),
+      whatsapp: contactForm.whatsapp.trim() || null,
+      email: contactForm.email.trim() || null,
+      contact_nom: contactForm.contact_nom.trim() || null,
+      contact_telephone: contactForm.contact_telephone.trim() || null,
+    };
+    const { error } = await supabase.from("agriplan_clients").update(nouveau).eq("id", clientId);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    await logAdminAction({
+      action: "contact_modifie",
+      entite: "agriplan_clients",
+      entite_id: clientId,
+      cible_libelle: `${client?.nom_complet || ""} (${client?.numero_client || ""})`,
+      ancienne_valeur: ancien,
+      nouvelle_valeur: nouveau,
+      details: "Coordonnées du client AgriPlan modifiées",
+    });
+    await trace("client", clientId, "contact_modifie", "Coordonnées mises à jour", true);
+    toast.success("Coordonnées mises à jour");
+    setContactOpen(false);
+    load();
+    onChanged();
+  };
+
 
   const totalPaye = ventes.reduce((s, v) => s + Number(v.total_paye || 0), 0);
   const totalDu = ventes.reduce((s, v) => s + Number(v.montant_total || 0), 0);
