@@ -272,8 +272,9 @@ const AccountRequests = () => {
               {selectedRequest.photo_url && (
                 <div>
                   <Label>Photo</Label>
-                  <img
-                    src={selectedRequest.photo_url}
+                  <SignedImg
+                    bucket="photos-profils"
+                    value={selectedRequest.photo_url}
                     alt="Photo"
                     className="w-32 h-32 object-cover rounded-full mt-2"
                   />
