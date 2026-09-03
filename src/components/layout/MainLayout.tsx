@@ -11,6 +11,7 @@ import AIAssistant from "@/components/ai/AIAssistant";
 import logoV2 from "@/assets/logo-agricapital-v2.png";
 import { cn } from "@/lib/utils";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
+import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { useGlobalRealtime } from "@/hooks/useGlobalRealtime";
 import {
   LayoutDashboard, Users, Sprout, CreditCard, LogOut, Menu, Receipt,
@@ -26,6 +27,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const { isOnline, isSyncing, syncNow, pendingCount, networkQuality } = useOfflineSync();
+  const photoUrl = useSignedUrl('photos-profils', profile?.photo_url);
   useGlobalRealtime();
 
   const menuItems = [
@@ -124,7 +126,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             <SheetTrigger asChild><Button variant="outline" size="icon"><Menu className="h-5 w-5" /></Button></SheetTrigger>
             <NetworkIndicator compact />
           </div>
-          <Avatar className="h-8 w-8" onClick={() => navigate('/profil')}><AvatarImage src={profile?.photo_url || ''} /><AvatarFallback className="bg-primary text-primary-foreground text-xs">{getInitials(profile?.nom_complet || '')}</AvatarFallback></Avatar>
+          <Avatar className="h-8 w-8" onClick={() => navigate('/profil')}><AvatarImage src={photoUrl || ''} /><AvatarFallback className="bg-primary text-primary-foreground text-xs">{getInitials(profile?.nom_complet || '')}</AvatarFallback></Avatar>
         </div>
         <SheetContent side="left" className="w-72 p-0"><SidebarContent /></SheetContent>
       </Sheet>
@@ -141,7 +143,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin")} />
             </Button>
             <div className="text-right leading-tight"><p className="text-sm font-semibold">{profile?.nom_complet || "Utilisateur"}</p><p className="text-xs text-muted-foreground">{userRoles.join(' / ') || 'Compte actif'}</p></div>
-            <Avatar className="h-9 w-9 cursor-pointer" onClick={() => navigate('/profil')}><AvatarImage src={profile?.photo_url || ''} /><AvatarFallback className="bg-primary text-primary-foreground text-sm">{getInitials(profile?.nom_complet || '')}</AvatarFallback></Avatar>
+            <Avatar className="h-9 w-9 cursor-pointer" onClick={() => navigate('/profil')}><AvatarImage src={photoUrl || ''} /><AvatarFallback className="bg-primary text-primary-foreground text-sm">{getInitials(profile?.nom_complet || '')}</AvatarFallback></Avatar>
           </div>
         </header>
         <div className="p-3 sm:p-5 lg:p-7">{children}</div>

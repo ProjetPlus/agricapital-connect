@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import logoGreen from "@/assets/logo-green.png";
 import { User, Mail, Phone, Briefcase, MapPin, FileText, KeyRound, AtSign } from "lucide-react";
 import { getSafeErrorMessage } from "@/lib/safeError";
+import { SignedImg } from "@/hooks/useSignedUrl";
 
 const ROLES = [
   { value: "commercial", label: "Commercial (Comm)" },
@@ -394,7 +395,7 @@ const AccountRequest = () => {
                 <p className="text-sm font-semibold text-destructive">Cet email est déjà attribué</p>
                 <div className="flex items-center gap-3">
                   {ownerInfo.photo_url && (
-                    <img src={ownerInfo.photo_url} alt={ownerInfo.nom_complet} className="h-14 w-14 rounded-full object-cover" />
+                    <SignedImg bucket="photos-profils" value={ownerInfo.photo_url} alt={ownerInfo.nom_complet} className="h-14 w-14 rounded-full object-cover" />
                   )}
                   <div className="text-sm">
                     <p className="font-medium">{ownerInfo.nom_complet}</p>

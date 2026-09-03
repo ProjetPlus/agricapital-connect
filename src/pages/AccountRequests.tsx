@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CheckCircle, XCircle, Eye, Trash2 } from "lucide-react";
 import { getSafeErrorMessage } from "@/lib/safeError";
+import { SignedImg } from "@/hooks/useSignedUrl";
 
 const ROLES = [
   "commercial", "technicien", "chef_equipe_commercial", "chef_equipe_technique",
@@ -272,8 +273,9 @@ const AccountRequests = () => {
               {selectedRequest.photo_url && (
                 <div>
                   <Label>Photo</Label>
-                  <img
-                    src={selectedRequest.photo_url}
+                  <SignedImg
+                    bucket="photos-profils"
+                    value={selectedRequest.photo_url}
                     alt="Photo"
                     className="w-32 h-32 object-cover rounded-full mt-2"
                   />

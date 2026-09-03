@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Phone, Mail, MapPin, Shield, Camera, UserPlus, Save } from "lucide-react";
 import { getSafeErrorMessage } from "@/lib/safeError";
+import { useSignedUrl } from "@/hooks/useSignedUrl";
 
 const Profil = () => {
   const { user, profile: authProfile } = useAuth();
@@ -20,6 +21,7 @@ const Profil = () => {
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<any>({});
   const [uploading, setUploading] = useState(false);
+  const photoUrl = useSignedUrl('photos-profils', profile.photo_url);
 
   useEffect(() => {
     if (user) fetchProfile();
@@ -89,14 +91,12 @@ const Profil = () => {
       const { error: uploadError } = await supabase.storage.from('photos-profils').upload(path, file, { upsert: true });
       if (uploadError) throw uploadError;
 
-      const { data: signed } = await supabase.storage.from('photos-profils').createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
-      const publicUrl = signed?.signedUrl || supabase.storage.from('photos-profils').getPublicUrl(path).data.publicUrl;
-
+      // Stocke uniquement le chemin; l'URL signée courte est générée à l'affichage
       await (supabase as any).from('profiles').upsert(
-        { id: profile.id || user.id, user_id: user.id, email: profile.email || user.email, nom_complet: profile.nom_complet || (user.email || '').split('@')[0], [field]: publicUrl, actif: true },
+        { id: profile.id || user.id, user_id: user.id, email: profile.email || user.email, nom_complet: profile.nom_complet || (user.email || '').split('@')[0], [field]: path, actif: true },
         { onConflict: 'id' }
       );
-      setProfile({ ...profile, [field]: publicUrl });
+      setProfile({ ...profile, [field]: path });
       toast({ title: "Photo mise à jour" });
     } catch (error: any) {
       toast({ variant: "destructive", title: "Erreur upload", description: getSafeErrorMessage(error) });
@@ -118,7 +118,7 @@ const Profil = () => {
               <div className="flex flex-col sm:flex-row items-center gap-6">
                 <div className="relative">
                   <Avatar className="h-24 w-24">
-                    <AvatarImage src={profile.photo_url || ''} />
+                    <AvatarImage src={photoUrl || ''} />
                     <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
                       {profile.nom_complet?.split(' ').map((n: string) => n[0]).join('').slice(0, 2) || 'US'}
                     </AvatarFallback>
