@@ -395,15 +395,54 @@ export default function AgriPlanClientDetail({ clientId, onOpenChange, onChanged
                   <SelectContent>{AGRIPLAN_ETAPES.map((e) => <SelectItem key={e.code} value={e.code}>{e.label}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-              {canArchive && (
-                <div className="flex items-end">
-                  <Button variant={client?.statut === "archive" ? "outline" : "secondary"} onClick={() => archiver(client?.statut !== "archive")}>
-                    <Archive className="mr-1 h-4 w-4" />
-                    {client?.statut === "archive" ? "Réactiver le dossier" : "Archiver le dossier"}
+            </div>
+
+            {canArchive && (
+              <div className="rounded-lg border p-3">
+                <p className="mb-1 text-sm font-semibold">Actions sur le compte client</p>
+                <p className="mb-3 text-xs text-muted-foreground">
+                  Statut actuel : <Badge variant="outline">{client?.statut || "actif"}</Badge> — chaque action est journalisée (qui, quoi, quand).
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {client?.statut !== "archive" && (
+                    <Button size="sm" variant="secondary" onClick={() => changerStatutCompte("archive")}>
+                      <Archive className="mr-1 h-4 w-4" />Archiver
+                    </Button>
+                  )}
+                  {client?.statut !== "suspendu" && client?.statut !== "archive" && (
+                    <Button size="sm" variant="outline" onClick={() => changerStatutCompte("suspendu")}>
+                      <PauseCircle className="mr-1 h-4 w-4" />Suspendre
+                    </Button>
+                  )}
+                  {client?.statut !== "actif" && (
+                    <Button size="sm" onClick={() => changerStatutCompte("actif")}>
+                      <PlayCircle className="mr-1 h-4 w-4" />Réactiver
+                    </Button>
+                  )}
+                  <Button size="sm" variant="outline" onClick={ouvrirContact}>
+                    <UserCog className="mr-1 h-4 w-4" />Modifier le contact
                   </Button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
+
+            <Dialog open={contactOpen} onOpenChange={setContactOpen}>
+              <DialogContent>
+                <DialogHeader><DialogTitle>Modifier les coordonnées</DialogTitle></DialogHeader>
+                <div className="space-y-3">
+                  <div><Label>Téléphone</Label><Input value={contactForm.telephone} onChange={(e) => setContactForm({ ...contactForm, telephone: e.target.value })} /></div>
+                  <div><Label>WhatsApp</Label><Input value={contactForm.whatsapp} onChange={(e) => setContactForm({ ...contactForm, whatsapp: e.target.value })} /></div>
+                  <div><Label>Email</Label><Input type="email" value={contactForm.email} onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })} /></div>
+                  <div><Label>Personne à contacter</Label><Input value={contactForm.contact_nom} onChange={(e) => setContactForm({ ...contactForm, contact_nom: e.target.value })} /></div>
+                  <div><Label>Téléphone du contact</Label><Input value={contactForm.contact_telephone} onChange={(e) => setContactForm({ ...contactForm, contact_telephone: e.target.value })} /></div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setContactOpen(false)}>Annuler</Button>
+                  <Button onClick={enregistrerContact}>Enregistrer</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
 
             <Separator />
             <p className="text-sm font-semibold">Ventes</p>
