@@ -415,13 +415,50 @@ const Offres = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">Redevance mensuelle :</p>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-xl font-bold">{formatMontant(offre.contribution_mensuelle_par_ha)}F</span>
-                        <span className="text-sm text-muted-foreground">/ ha / mois</span>
-                      </div>
-                    </div>
+                    {(() => {
+                      const pe = parOffre(offre.id);
+                      const promoActive = !!pe?.promotion_id;
+                      return (
+                        <div className="space-y-2 rounded-md border bg-muted/40 p-3">
+                          <p className="text-sm font-semibold">Prix effectif (promotion appliquée depuis la base)</p>
+                          <div className="grid gap-1 text-sm">
+                            <div className="flex items-baseline justify-between gap-2">
+                              <span className="text-muted-foreground">Prix global / ha</span>
+                              <span className="flex items-baseline gap-2">
+                                {promoActive && pe && pe.montant_total_effectif !== pe.montant_total_base && (
+                                  <span className="line-through text-muted-foreground">{formatMontant(pe.montant_total_base)}F</span>
+                                )}
+                                <span className="font-bold text-primary">{formatMontant(pe?.montant_total_effectif ?? offre.montant_total_par_ha)}F</span>
+                              </span>
+                            </div>
+                            <div className="flex items-baseline justify-between gap-2">
+                              <span className="text-muted-foreground">Dépôt initial (DI) / ha</span>
+                              <span className="flex items-baseline gap-2">
+                                {promoActive && pe && pe.depot_initial_effectif !== pe.depot_initial_base && (
+                                  <span className="line-through text-muted-foreground">{formatMontant(pe.depot_initial_base)}F</span>
+                                )}
+                                <span className="font-bold">{formatMontant(pe?.depot_initial_effectif ?? offre.montant_depot_initial_par_ha)}F</span>
+                              </span>
+                            </div>
+                            <div className="flex items-baseline justify-between gap-2">
+                              <span className="text-muted-foreground">Redevance mensuelle / ha</span>
+                              <span className="flex items-baseline gap-2">
+                                {promoActive && pe && pe.mensualite_effective !== pe.mensualite_base && (
+                                  <span className="line-through text-muted-foreground">{formatMontant(pe.mensualite_base)}F</span>
+                                )}
+                                <span className="font-bold">{formatMontant(pe?.mensualite_effective ?? offre.contribution_mensuelle_par_ha)}F</span>
+                              </span>
+                            </div>
+                          </div>
+                          {promoActive && pe && (
+                            <Badge className="bg-green-500">
+                              {pe.promotion_nom} — {pe.promotion_cible === "depot_initial" ? "DI" : "Prix global"} -{pe.reduction_pct}%
+                            </Badge>
+                          )}
+                        </div>
+                      );
+                    })()}
+
 
                     <div className="space-y-2 pt-2 border-t">
                       {avantagesList.map((avantage: string, idx: number) => (

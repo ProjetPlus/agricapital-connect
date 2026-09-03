@@ -17,7 +17,9 @@ import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Archive, FileText, Plus, Send, Upload } from "lucide-react";
+import { logAdminAction } from "@/lib/audit";
+import { Archive, FileText, PauseCircle, PlayCircle, Plus, Send, Upload, UserCog } from "lucide-react";
+
 
 interface Props {
   clientId: string | null;
@@ -253,21 +255,87 @@ export default function AgriPlanClientDetail({ clientId, onOpenChange, onChanged
     onChanged();
   };
 
-  const archiver = async (archive: boolean) => {
+  const changerStatutCompte = async (nouveau: "actif" | "suspendu" | "archive") => {
     if (!clientId) return;
-    await supabase
+    const ancien = client?.statut || "actif";
+    const { error } = await supabase
       .from("agriplan_clients")
       .update({
-        statut: archive ? "archive" : "actif",
-        archived_at: archive ? new Date().toISOString() : null,
-        archived_by: archive ? user?.id || null : null,
+        statut: nouveau,
+        archived_at: nouveau === "archive" ? new Date().toISOString() : null,
+        archived_by: nouveau === "archive" ? user?.id || null : null,
       })
       .eq("id", clientId);
-    await trace("client", clientId, archive ? "dossier_archive" : "dossier_reactive", "");
-    toast.success(archive ? "Dossier archivé (données conservées)" : "Dossier réactivé");
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    const actions: Record<string, string> = { actif: "compte_reactive", suspendu: "compte_suspendu", archive: "compte_archive" };
+    await logAdminAction({
+      action: actions[nouveau],
+      entite: "agriplan_clients",
+      entite_id: clientId,
+      cible_libelle: `${client?.nom_complet || ""} (${client?.numero_client || ""})`,
+      ancienne_valeur: { statut: ancien },
+      nouvelle_valeur: { statut: nouveau },
+      details: `Compte client AgriPlan ${nouveau}`,
+    });
+    await trace("client", clientId, actions[nouveau], `Statut du compte : ${ancien} → ${nouveau}`);
+    toast.success(
+      nouveau === "archive" ? "Compte archivé (données conservées)" : nouveau === "suspendu" ? "Compte suspendu" : "Compte réactivé",
+    );
     load();
     onChanged();
   };
+
+  const [contactOpen, setContactOpen] = useState(false);
+  const [contactForm, setContactForm] = useState({ telephone: "", whatsapp: "", email: "", contact_nom: "", contact_telephone: "" });
+
+  const ouvrirContact = () => {
+    setContactForm({
+      telephone: client?.telephone || "",
+      whatsapp: client?.whatsapp || "",
+      email: client?.email || "",
+      contact_nom: client?.contact_nom || "",
+      contact_telephone: client?.contact_telephone || "",
+    });
+    setContactOpen(true);
+  };
+
+  const enregistrerContact = async () => {
+    if (!clientId) return;
+    const ancien = {
+      telephone: client?.telephone, whatsapp: client?.whatsapp, email: client?.email,
+      contact_nom: client?.contact_nom, contact_telephone: client?.contact_telephone,
+    };
+    const nouveau = {
+      telephone: contactForm.telephone.trim(),
+      whatsapp: contactForm.whatsapp.trim() || null,
+      email: contactForm.email.trim() || null,
+      contact_nom: contactForm.contact_nom.trim() || null,
+      contact_telephone: contactForm.contact_telephone.trim() || null,
+    };
+    const { error } = await supabase.from("agriplan_clients").update(nouveau).eq("id", clientId);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    await logAdminAction({
+      action: "contact_modifie",
+      entite: "agriplan_clients",
+      entite_id: clientId,
+      cible_libelle: `${client?.nom_complet || ""} (${client?.numero_client || ""})`,
+      ancienne_valeur: ancien,
+      nouvelle_valeur: nouveau,
+      details: "Coordonnées du client AgriPlan modifiées",
+    });
+    await trace("client", clientId, "contact_modifie", "Coordonnées mises à jour", true);
+    toast.success("Coordonnées mises à jour");
+    setContactOpen(false);
+    load();
+    onChanged();
+  };
+
 
   const totalPaye = ventes.reduce((s, v) => s + Number(v.total_paye || 0), 0);
   const totalDu = ventes.reduce((s, v) => s + Number(v.montant_total || 0), 0);
@@ -327,15 +395,54 @@ export default function AgriPlanClientDetail({ clientId, onOpenChange, onChanged
                   <SelectContent>{AGRIPLAN_ETAPES.map((e) => <SelectItem key={e.code} value={e.code}>{e.label}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-              {canArchive && (
-                <div className="flex items-end">
-                  <Button variant={client?.statut === "archive" ? "outline" : "secondary"} onClick={() => archiver(client?.statut !== "archive")}>
-                    <Archive className="mr-1 h-4 w-4" />
-                    {client?.statut === "archive" ? "Réactiver le dossier" : "Archiver le dossier"}
+            </div>
+
+            {canArchive && (
+              <div className="rounded-lg border p-3">
+                <p className="mb-1 text-sm font-semibold">Actions sur le compte client</p>
+                <p className="mb-3 text-xs text-muted-foreground">
+                  Statut actuel : <Badge variant="outline">{client?.statut || "actif"}</Badge> — chaque action est journalisée (qui, quoi, quand).
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {client?.statut !== "archive" && (
+                    <Button size="sm" variant="secondary" onClick={() => changerStatutCompte("archive")}>
+                      <Archive className="mr-1 h-4 w-4" />Archiver
+                    </Button>
+                  )}
+                  {client?.statut !== "suspendu" && client?.statut !== "archive" && (
+                    <Button size="sm" variant="outline" onClick={() => changerStatutCompte("suspendu")}>
+                      <PauseCircle className="mr-1 h-4 w-4" />Suspendre
+                    </Button>
+                  )}
+                  {client?.statut !== "actif" && (
+                    <Button size="sm" onClick={() => changerStatutCompte("actif")}>
+                      <PlayCircle className="mr-1 h-4 w-4" />Réactiver
+                    </Button>
+                  )}
+                  <Button size="sm" variant="outline" onClick={ouvrirContact}>
+                    <UserCog className="mr-1 h-4 w-4" />Modifier le contact
                   </Button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
+
+            <Dialog open={contactOpen} onOpenChange={setContactOpen}>
+              <DialogContent>
+                <DialogHeader><DialogTitle>Modifier les coordonnées</DialogTitle></DialogHeader>
+                <div className="space-y-3">
+                  <div><Label>Téléphone</Label><Input value={contactForm.telephone} onChange={(e) => setContactForm({ ...contactForm, telephone: e.target.value })} /></div>
+                  <div><Label>WhatsApp</Label><Input value={contactForm.whatsapp} onChange={(e) => setContactForm({ ...contactForm, whatsapp: e.target.value })} /></div>
+                  <div><Label>Email</Label><Input type="email" value={contactForm.email} onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })} /></div>
+                  <div><Label>Personne à contacter</Label><Input value={contactForm.contact_nom} onChange={(e) => setContactForm({ ...contactForm, contact_nom: e.target.value })} /></div>
+                  <div><Label>Téléphone du contact</Label><Input value={contactForm.contact_telephone} onChange={(e) => setContactForm({ ...contactForm, contact_telephone: e.target.value })} /></div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setContactOpen(false)}>Annuler</Button>
+                  <Button onClick={enregistrerContact}>Enregistrer</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
 
             <Separator />
             <p className="text-sm font-semibold">Ventes</p>

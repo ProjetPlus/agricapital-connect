@@ -139,6 +139,7 @@ const AgriPlan = () => {
                         <TableHead>Sous-préfecture</TableHead>
                         <TableHead>Localité</TableHead>
                         <TableHead>Statut</TableHead>
+                        <TableHead>Relance</TableHead>
                         <TableHead></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -151,7 +152,27 @@ const AgriPlan = () => {
                           <TableCell>{nomSousPrefecture(l.sous_prefecture_id)}</TableCell>
                           <TableCell>{l.localite || "—"}</TableCell>
                           <TableCell><Badge variant="outline">{labelOf(AGRIPLAN_LEAD_STATUTS as never, l.statut)}</Badge></TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="whitespace-nowrap text-xs">
+                            {aRelancer(l) && (
+                              <Badge variant="destructive" className="mb-1 gap-1">
+                                <AlertTriangle className="h-3 w-3" />à relancer
+                              </Badge>
+                            )}
+                            <div className="text-muted-foreground">
+                              {l.derniere_relance_at
+                                ? `Dernière : ${format(new Date(l.derniere_relance_at), "dd/MM/yyyy", { locale: fr })}`
+                                : "Aucune relance"}
+                            </div>
+                            <div className="text-muted-foreground">
+                              {l.prochaine_relance_at
+                                ? `Prochaine : ${format(new Date(l.prochaine_relance_at), "dd/MM/yyyy", { locale: fr })}`
+                                : "—"}
+                            </div>
+                          </TableCell>
+                          <TableCell className="space-x-2 text-right">
+                            <Button size="sm" variant="outline" onClick={() => setRelanceLead(l)}>
+                              <PhoneCall className="mr-1 h-4 w-4" />Relancer
+                            </Button>
                             {canSell && (
                               <Button size="sm" onClick={() => { setVenteLead(l as AgriPlanLeadLite); setVenteOpen(true); }}>
                                 Convertir en vente
@@ -161,8 +182,9 @@ const AgriPlan = () => {
                         </TableRow>
                       ))}
                       {!loading && leadsVisibles.length === 0 && (
-                        <TableRow><TableCell colSpan={7} className="py-8 text-center text-muted-foreground">Aucun lead AgriPlan</TableCell></TableRow>
+                        <TableRow><TableCell colSpan={8} className="py-8 text-center text-muted-foreground">Aucun lead AgriPlan</TableCell></TableRow>
                       )}
+
                     </TableBody>
                   </Table>
                 </CardContent>
@@ -215,6 +237,8 @@ const AgriPlan = () => {
         <AgriPlanLeadDialog open={leadOpen} onOpenChange={setLeadOpen} onSaved={load} />
         <AgriPlanVenteDialog open={venteOpen} onOpenChange={setVenteOpen} onSaved={load} lead={venteLead} />
         <AgriPlanClientDetail clientId={detailId} onOpenChange={(v) => !v && setDetailId(null)} onChanged={load} />
+        <AgriPlanLeadRelances lead={relanceLead} onOpenChange={(v) => !v && setRelanceLead(null)} onChanged={load} />
+
       </MainLayout>
     </ProtectedRoute>
   );
