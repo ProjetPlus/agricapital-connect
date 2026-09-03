@@ -89,14 +89,12 @@ const Profil = () => {
       const { error: uploadError } = await supabase.storage.from('photos-profils').upload(path, file, { upsert: true });
       if (uploadError) throw uploadError;
 
-      const { data: signed } = await supabase.storage.from('photos-profils').createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
-      const publicUrl = signed?.signedUrl || supabase.storage.from('photos-profils').getPublicUrl(path).data.publicUrl;
-
+      // Stocke uniquement le chemin; l'URL signée courte est générée à l'affichage
       await (supabase as any).from('profiles').upsert(
-        { id: profile.id || user.id, user_id: user.id, email: profile.email || user.email, nom_complet: profile.nom_complet || (user.email || '').split('@')[0], [field]: publicUrl, actif: true },
+        { id: profile.id || user.id, user_id: user.id, email: profile.email || user.email, nom_complet: profile.nom_complet || (user.email || '').split('@')[0], [field]: path, actif: true },
         { onConflict: 'id' }
       );
-      setProfile({ ...profile, [field]: publicUrl });
+      setProfile({ ...profile, [field]: path });
       toast({ title: "Photo mise à jour" });
     } catch (error: any) {
       toast({ variant: "destructive", title: "Erreur upload", description: getSafeErrorMessage(error) });

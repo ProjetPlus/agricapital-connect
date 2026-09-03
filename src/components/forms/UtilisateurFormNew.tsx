@@ -171,10 +171,8 @@ const UtilisateurFormNew = ({ utilisateur, onSuccess, onCancel }: UtilisateurFor
 
         if (uploadError) throw uploadError;
 
-        const { data: signed } = await supabase.storage
-          .from('photos-profils')
-          .createSignedUrl(fileName, 60 * 60 * 24 * 365 * 5);
-        photoUrl = signed?.signedUrl || supabase.storage.from('photos-profils').getPublicUrl(fileName).data.publicUrl;
+        // Stocke uniquement le chemin; l'URL signée courte est générée à l'affichage
+        photoUrl = fileName;
       }
 
       if (utilisateur) {
