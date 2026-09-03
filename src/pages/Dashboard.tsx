@@ -8,6 +8,7 @@ import { RoleDashboard } from "@/components/dashboard/RoleDashboard";
 import { hasPermission, PERMISSIONS, ROLE_SHORT_LABELS } from "@/lib/roles";
 import { useRealtime } from "@/hooks/useRealtime";
 import { useAuth } from "@/hooks/useAuth";
+import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlantationsMap } from "@/components/dashboard/PlantationsMap";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -49,6 +50,7 @@ import {
 
 const Dashboard = () => {
   const { profile, userRoles } = useAuth();
+  const profilePhotoUrl = useSignedUrl('photos-profils', profile?.photo_url);
 
   // Souscripteur (user) : redirection vers son espace personnel
   const isSouscripteurOnly =
@@ -296,9 +298,9 @@ const Dashboard = () => {
               <div className="relative">
                 <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full p-0.5 bg-gradient-to-br from-amber-400 via-transparent to-primary">
                   <div className="h-full w-full rounded-full overflow-hidden bg-background">
-                    {profile?.photo_url ? (
+                    {profilePhotoUrl ? (
                       <img 
-                        src={profile.photo_url} 
+                        src={profilePhotoUrl} 
                         alt={profile.nom_complet || 'Photo profil'} 
                         className="h-full w-full object-cover"
                       />
