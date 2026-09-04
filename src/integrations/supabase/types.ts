@@ -1206,6 +1206,74 @@ export type Database = {
         }
         Relationships: []
       }
+      cartes_personnel: {
+        Row: {
+          code_verification: string
+          created_at: string
+          created_by: string | null
+          date_delivrance: string
+          date_expiration: string
+          departement: string | null
+          id: string
+          matricule: string
+          notes: string | null
+          photo_url: string | null
+          poste: string | null
+          profile_id: string
+          role_code: string | null
+          statut: string
+          type_contrat: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          code_verification?: string
+          created_at?: string
+          created_by?: string | null
+          date_delivrance?: string
+          date_expiration?: string
+          departement?: string | null
+          id?: string
+          matricule: string
+          notes?: string | null
+          photo_url?: string | null
+          poste?: string | null
+          profile_id: string
+          role_code?: string | null
+          statut?: string
+          type_contrat?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          code_verification?: string
+          created_at?: string
+          created_by?: string | null
+          date_delivrance?: string
+          date_expiration?: string
+          departement?: string | null
+          id?: string
+          matricule?: string
+          notes?: string | null
+          photo_url?: string | null
+          poste?: string | null
+          profile_id?: string
+          role_code?: string | null
+          statut?: string
+          type_contrat?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cartes_personnel_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commissions: {
         Row: {
           annee_contrat: number | null
@@ -4550,6 +4618,22 @@ export type Database = {
         }[]
       }
       username_available: { Args: { _username: string }; Returns: boolean }
+      verifier_carte: {
+        Args: { _code: string }
+        Returns: {
+          date_delivrance: string
+          date_expiration: string
+          departement: string
+          matricule: string
+          nom_complet: string
+          photo_url: string
+          poste: string
+          role_code: string
+          statut: string
+          type_contrat: string
+          valide: boolean
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
