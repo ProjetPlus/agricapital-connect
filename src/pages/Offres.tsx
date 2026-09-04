@@ -18,6 +18,7 @@ import { Tables } from "@/integrations/supabase/types";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { getSafeErrorMessage } from "@/lib/safeError";
+import { useOffresPrixEffectif } from "@/hooks/useOffresPrixEffectif";
 
 type Offre = Tables<'offres'>;
 type Promotion = Tables<'promotions'>;
@@ -58,6 +59,7 @@ const getCouleur = (code: string, couleur?: string | null) => {
 const Offres = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { parOffre } = useOffresPrixEffectif();
   const [activeTab, setActiveTab] = useState<'offres' | 'promotions' | 'agriplan'>('offres');
   const [editOffre, setEditOffre] = useState<Offre | null>(null);
   const [isOffreDialogOpen, setIsOffreDialogOpen] = useState(false);
