@@ -625,7 +625,7 @@ const GestionPaiements = () => {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
@@ -962,7 +962,7 @@ const GestionPaiements = () => {
               </DialogHeader>
               {selectedPaiement && (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Référence</p>
                       <p className="font-mono text-sm">{selectedPaiement.reference}</p>
@@ -1147,7 +1147,7 @@ const GestionPaiements = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Mode de remboursement</Label>
                     <Select value={refundMode} onValueChange={setRefundMode}>
@@ -1239,7 +1239,7 @@ const GestionPaiements = () => {
                       </p>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Période</Label>
                         <Select value={convertPeriod} onValueChange={(v) => setConvertPeriod(v as any)}>

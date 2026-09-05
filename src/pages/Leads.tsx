@@ -257,7 +257,7 @@ export default function Leads() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3">
           {[
             { l: "Total", v: stats.total, i: Users },
             { l: "Nouveaux", v: stats.nouveaux, i: Target },

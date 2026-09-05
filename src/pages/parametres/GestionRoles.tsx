@@ -597,7 +597,7 @@ const GestionRoles = () => {
             <DialogDescription>Le code du rôle est utilisé par les règles d'accès de la base.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Code *</Label>
                 <Input
@@ -620,7 +620,7 @@ const GestionRoles = () => {
               <Label>Nom *</Label>
               <Input value={roleDraft.nom} onChange={(e) => setRoleDraft({ ...roleDraft, nom: e.target.value })} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Niveau</Label>
                 <Input

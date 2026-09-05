@@ -31,6 +31,7 @@ import Leads from "./pages/Leads";
 import SyncQueue from "./pages/SyncQueue";
 import PublicLead from "./pages/PublicLead";
 import AgriPlan from "./pages/AgriPlan";
+import VerificationCarte from "./pages/VerificationCarte";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,10 @@ const DomainRouter = () => {
       {/* Formulaire public prospects */}
       <Route path="/leads/public" element={<PublicLead />} />
       <Route path="/prospect" element={<PublicLead />} />
+
+      {/* Vérification publique d'une carte du personnel (QR code) */}
+      <Route path="/verifier-carte" element={<VerificationCarte />} />
+      <Route path="/verifier-carte/:code" element={<VerificationCarte />} />
 
       {/* Protected routes */}
       <Route path="/dashboard" element={<Dashboard />} />

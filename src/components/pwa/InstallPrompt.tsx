@@ -109,7 +109,7 @@ const InstallPrompt = () => {
                 <p>Accédez à AgriCapital CRM directement depuis votre écran d'accueil pour une expérience optimale.</p>
               )}
               
-              <div className="grid grid-cols-3 gap-3 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                 <div className="flex flex-col items-center gap-1.5 p-3 bg-muted rounded-lg">
                   <WifiOff className="h-5 w-5 text-primary" />
                   <span className="text-xs text-center font-medium">Mode hors ligne</span>

@@ -69,7 +69,7 @@ export default function SyncQueue() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { l: "Fichiers en file", v: fileStats.total },
           { l: "Prêts à envoyer", v: fileStats.pending },

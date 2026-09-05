@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BadgeCheck, Ban, Download, IdCard, Printer, RefreshCw, Search, Upload } from "lucide-react";
+import { BadgeCheck, Ban, Download, IdCard, Printer, QrCode, RefreshCw, Search, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -227,17 +227,22 @@ const GestionCartes = () => {
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <div>
             <CardTitle className="flex items-center gap-2"><IdCard className="h-5 w-5" />Cartes du personnel</CardTitle>
             <CardDescription>Génération, validation et impression des cartes professionnelles (54 × 86 mm).</CardDescription>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="relative">
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <div className="relative w-full sm:w-48">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input className="w-48 pl-8" placeholder="Rechercher…" value={q} onChange={(e) => setQ(e.target.value)} />
+              <Input className="w-full pl-8" placeholder="Rechercher…" value={q} onChange={(e) => setQ(e.target.value)} />
             </div>
-            <Button variant="outline" onClick={genererToutes}><RefreshCw className="mr-1 h-4 w-4" />Générer toutes</Button>
+            <Button variant="outline" className="w-full sm:w-auto" onClick={genererToutes}>
+              <RefreshCw className="mr-1 h-4 w-4" />Générer toutes
+            </Button>
+            <Button variant="secondary" className="w-full sm:w-auto" asChild>
+              <a href="/verifier-carte" target="_blank" rel="noreferrer"><QrCode className="mr-1 h-4 w-4" />Scanner un badge</a>
+            </Button>
           </div>
         </CardHeader>
         <CardContent>

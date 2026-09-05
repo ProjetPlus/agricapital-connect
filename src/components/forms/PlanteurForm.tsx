@@ -119,7 +119,7 @@ const PlanteurForm = ({ planteur, onSuccess, onCancel }: PlanteurFormProps) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Civilité *</Label>
           <Select
@@ -208,7 +208,7 @@ const PlanteurForm = ({ planteur, onSuccess, onCancel }: PlanteurFormProps) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="space-y-2">
           <Label>Photo de profil</Label>
           <FileUpload

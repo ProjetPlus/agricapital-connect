@@ -523,7 +523,7 @@ const Offres = () => {
                                   onChange={(e) => setEditOffre({...editOffre, description: e.target.value})}
                                 />
                               </div>
-                              <div className="grid grid-cols-2 gap-4">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                   <Label htmlFor="montant_da">Montant DI/ha (F)</Label>
                                   <Input 
@@ -605,7 +605,7 @@ const Offres = () => {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="pourcentage">Pourcentage de réduction (%) *</Label>
                       <div className="relative">
@@ -632,7 +632,7 @@ const Offres = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="debut">Date début *</Label>
                       <Input

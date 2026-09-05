@@ -588,7 +588,7 @@ const ProprietairesTerres = () => {
                         </div>
                       )}
                       <h4 className="font-semibold mt-4">Limites de la parcelle</h4>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>Limites Nord</Label>
                           <Input value={formData.limites_nord} onChange={e => update('limites_nord', e.target.value)} />
@@ -699,7 +699,7 @@ const ProprietairesTerres = () => {
             </Dialog>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <Card>
               <CardContent className="p-4 flex items-center gap-3">
                 <div className="p-2 bg-primary/10 rounded-lg"><Users className="h-5 w-5 text-primary" /></div>

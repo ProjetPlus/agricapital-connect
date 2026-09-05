@@ -327,7 +327,7 @@ const OfflineMapComponent = ({ position: initialPosition, onPositionChange, heig
       </div>
 
       {/* Manual coordinate entry */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="space-y-1">
           <Label className="text-xs">Latitude</Label>
           <Input

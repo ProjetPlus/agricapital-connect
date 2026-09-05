@@ -332,7 +332,7 @@ const Dashboard = () => {
           </div>
 
           {/* Actions rapides */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             {isSouscripteurOnly && (
               <>
                 <Button asChild variant="default" className="h-auto py-4 flex-col gap-2">
@@ -467,7 +467,7 @@ const Dashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 text-center">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 text-center">
                   <div className="p-2 bg-muted/50 rounded">
                     <div className="text-xl font-bold">{syntheseAgg.contratsActifs}</div>
                     <div className="text-[10px] text-muted-foreground uppercase">Contrats actifs</div>
@@ -502,7 +502,7 @@ const Dashboard = () => {
           )}
 
           {/* KPIs adaptés au rôle */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
             <Card className="hover-scale cursor-pointer transition-all hover:shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 sm:p-4 lg:p-6">
                 <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">

@@ -79,7 +79,7 @@ export default function AgriPlanLeadDialog({ open, onOpenChange, onSaved }: Prop
             <Label>Nom et prénom *</Label>
             <Input value={form.nom_complet} onChange={(e) => set("nom_complet", e.target.value)} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label>Téléphone *</Label>
               <Input value={form.telephone} onChange={(e) => set("telephone", e.target.value)} />
@@ -89,7 +89,7 @@ export default function AgriPlanLeadDialog({ open, onOpenChange, onSaved }: Prop
               <Input value={form.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label>Région</Label>
               <Select value={form.region_id} onValueChange={(v) => { set("region_id", v); set("sous_prefecture_id", ""); }}>
@@ -109,7 +109,7 @@ export default function AgriPlanLeadDialog({ open, onOpenChange, onSaved }: Prop
               </Select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label>Localité / lieu de résidence</Label>
               <Input value={form.localite} onChange={(e) => set("localite", e.target.value)} />
