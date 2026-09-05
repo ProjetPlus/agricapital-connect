@@ -1,6 +1,16 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+
+const escapeHtml = (value: unknown): string =>
+  String(value ?? "")
+    .slice(0, 500)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -36,6 +46,16 @@ serve(async (req) => {
     );
 
     const { requestData } = await req.json();
+    // Toutes les valeurs issues du formulaire public sont échappées avant insertion dans l'email HTML.
+    const safe = {
+      nom_complet: escapeHtml(requestData?.nom_complet),
+      email: escapeHtml(requestData?.email),
+      telephone: escapeHtml(requestData?.telephone),
+      poste: escapeHtml(requestData?.poste),
+      region: escapeHtml(requestData?.region),
+      departement: escapeHtml(requestData?.departement),
+      message: escapeHtml(requestData?.message),
+    };
     console.log("Request data received:", requestData);
 
     // Get all super admins
@@ -124,44 +144,44 @@ serve(async (req) => {
                       <p>Nouvelle demande de compte</p>
                     </div>
                     <div class="content">
-                      <p>Bonjour ${adminProfile.nom_complet},</p>
+                      <p>Bonjour ${escapeHtml(adminProfile.nom_complet)},</p>
                       <p>Une nouvelle demande de création de compte a été soumise sur la plateforme AgriCapital.</p>
                       
                       <h3>Détails de la demande :</h3>
                       <div class="info-row">
                         <span class="label">Nom complet :</span>
-                        <span class="value">${requestData.nom_complet}</span>
+                        <span class="value">${safe.nom_complet}</span>
                       </div>
                       <div class="info-row">
                         <span class="label">Email :</span>
-                        <span class="value">${requestData.email}</span>
+                        <span class="value">${safe.email}</span>
                       </div>
                       <div class="info-row">
                         <span class="label">Téléphone :</span>
-                        <span class="value">${requestData.telephone}</span>
+                        <span class="value">${safe.telephone}</span>
                       </div>
-                      ${requestData.poste ? `
+                      ${safe.poste ? `
                       <div class="info-row">
                         <span class="label">Poste souhaité :</span>
-                        <span class="value">${requestData.poste}</span>
+                        <span class="value">${safe.poste}</span>
                       </div>
                       ` : ''}
-                      ${requestData.region ? `
+                      ${safe.region ? `
                       <div class="info-row">
                         <span class="label">Région :</span>
-                        <span class="value">${requestData.region}</span>
+                        <span class="value">${safe.region}</span>
                       </div>
                       ` : ''}
-                      ${requestData.departement ? `
+                      ${safe.departement ? `
                       <div class="info-row">
                         <span class="label">Département :</span>
-                        <span class="value">${requestData.departement}</span>
+                        <span class="value">${safe.departement}</span>
                       </div>
                       ` : ''}
-                      ${requestData.message ? `
+                      ${safe.message ? `
                       <div class="info-row">
                         <span class="label">Message :</span>
-                        <span class="value">${requestData.message}</span>
+                        <span class="value">${safe.message}</span>
                       </div>
                       ` : ''}
                       
