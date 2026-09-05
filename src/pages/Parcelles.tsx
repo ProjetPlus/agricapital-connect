@@ -166,7 +166,7 @@ const Parcelles = () => {
             </Dialog>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <Card><CardContent className="p-4 flex items-center gap-3"><div className="p-2 bg-primary/10 rounded-lg"><Layers className="h-5 w-5 text-primary" /></div><div><div className="text-2xl font-bold">{parcelles.length}</div><div className="text-xs text-muted-foreground">Parcelles</div></div></CardContent></Card>
             <Card><CardContent className="p-4 flex items-center gap-3"><div className="p-2 bg-green-100 rounded-lg"><MapPin className="h-5 w-5 text-green-600" /></div><div><div className="text-2xl font-bold">{totalSurfaceDispo.toFixed(1)}</div><div className="text-xs text-muted-foreground">ha disponibles</div></div></CardContent></Card>
             <Card><CardContent className="p-4 flex items-center gap-3"><div className="p-2 bg-accent/10 rounded-lg"><BarChart3 className="h-5 w-5 text-accent" /></div><div><div className="text-2xl font-bold">{totalSurfaceAgri.toFixed(1)}</div><div className="text-xs text-muted-foreground">ha AgriCapital</div></div></CardContent></Card>

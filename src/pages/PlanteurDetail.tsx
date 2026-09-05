@@ -403,7 +403,7 @@ const PlanteurDetail = () => {
                       Aucune photo disponible
                     </p>
                   ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                       {photos.map((photo) => (
                         <div key={photo.id} className="space-y-2">
                           <img

@@ -69,7 +69,7 @@ const Login = () => {
             Plateforme intégrée de gestion agricole : souscriptions, foncier, plantations, AgriPlan et paiements
           </p>
 
-          <div className="grid grid-cols-2 gap-4 text-left text-white/75">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left text-white/75">
             <div className="rounded-lg bg-white/10 p-3">
               <p className="text-sm font-semibold text-white">Souscriptions & Offres</p>
               <p className="text-xs">PalmInvest, TerraPalm, AgriPlan</p>

@@ -298,7 +298,7 @@ export const Etape0Offre = ({ formData, updateFormData }: Etape0Props) => {
               
               return (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-muted-foreground">Offre:</span>
                       <p className="font-medium">{offre.nom}</p>

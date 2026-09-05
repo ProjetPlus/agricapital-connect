@@ -178,7 +178,7 @@ const UtilisateurForm = ({ utilisateur, onSuccess, onCancel }: UtilisateurFormPr
           <CardTitle>Rôles et Permissions</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 border rounded-lg">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 p-4 border rounded-lg">
             {ROLES.map(({ value, label }) => (
               <div key={value} className="flex items-center space-x-2">
                 <Checkbox

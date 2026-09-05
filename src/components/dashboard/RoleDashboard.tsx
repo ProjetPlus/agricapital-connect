@@ -132,7 +132,7 @@ export const RoleDashboard = () => {
         )}
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-4 gap-3">
           {showCommercialKPIs && (
             <>
               <div className="text-center p-2 bg-background rounded-lg">
