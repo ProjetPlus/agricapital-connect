@@ -15,12 +15,15 @@ import { Plus, Edit, Trash2, CheckCircle, XCircle, Percent, Calculator } from "l
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { getSafeErrorMessage } from "@/lib/safeError";
+import { useOffresPrixEffectif } from "@/hooks/useOffresPrixEffectif";
+import { formatF } from "@/lib/pricing";
 
 const Promotions = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPromo, setEditingPromo] = useState<any>(null);
+  const { prix: prixEffectifs, isLoading: prixLoading } = useOffresPrixEffectif();
 
   const [formData, setFormData] = useState({
     nom: "",
@@ -234,7 +237,7 @@ const Promotions = () => {
               </div>
 
               {formData.cible !== "special" ? (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="pourcentage">Pourcentage de réduction (%) *</Label>
                   <div className="relative">
@@ -283,7 +286,7 @@ const Promotions = () => {
               </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="debut">Date début *</Label>
                   <Input id="debut" type="date" value={formData.date_debut} onChange={(e) => setFormData({...formData, date_debut: e.target.value})} required />
@@ -354,6 +357,73 @@ const Promotions = () => {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Prix effectifs après application automatique des promotions actives */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Calculator className="h-5 w-5" />Prix effectifs actuels
+          </CardTitle>
+          <CardDescription>
+            Montants réellement appliqués aux souscriptions et au portail (par hectare), promotions actives incluses.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {prixLoading ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">Chargement…</p>
+          ) : prixEffectifs.length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">Aucune offre active.</p>
+          ) : (
+            <div className="-mx-3 overflow-x-auto px-3 sm:mx-0 sm:px-0">
+              <Table className="min-w-[640px]">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Offre</TableHead>
+                    <TableHead>Promotion</TableHead>
+                    <TableHead className="text-right">Prix global</TableHead>
+                    <TableHead className="text-right">DI</TableHead>
+                    <TableHead className="text-right">Mensualité</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {prixEffectifs.map((r) => (
+                    <TableRow key={r.offre_id}>
+                      <TableCell className="font-medium">{r.nom}</TableCell>
+                      <TableCell>
+                        {r.promotion_id ? (
+                          <Badge variant="outline" className="max-w-[180px] truncate text-primary">
+                            {r.promotion_nom} · -{r.reduction_pct}%
+                          </Badge>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">Aucune</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap text-right font-mono">
+                        {r.montant_total_effectif < r.montant_total_base && (
+                          <span className="mr-1 text-muted-foreground line-through">{formatF(r.montant_total_base)}</span>
+                        )}
+                        <span className="font-semibold text-primary">{formatF(r.montant_total_effectif)}</span>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap text-right font-mono">
+                        {r.depot_initial_effectif < r.depot_initial_base && (
+                          <span className="mr-1 text-muted-foreground line-through">{formatF(r.depot_initial_base)}</span>
+                        )}
+                        <span className="font-semibold text-primary">{formatF(r.depot_initial_effectif)}</span>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap text-right font-mono">
+                        {r.mensualite_effective < r.mensualite_base && (
+                          <span className="mr-1 text-muted-foreground line-through">{formatF(r.mensualite_base)}</span>
+                        )}
+                        <span className="font-semibold text-primary">{formatF(r.mensualite_effective)}</span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
