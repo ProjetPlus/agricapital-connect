@@ -4621,14 +4621,10 @@ export type Database = {
       verifier_carte: {
         Args: { _code: string }
         Returns: {
-          date_delivrance: string
           date_expiration: string
-          departement: string
           matricule: string
           nom_complet: string
-          photo_url: string
           poste: string
-          role_code: string
           statut: string
           type_contrat: string
           valide: boolean
