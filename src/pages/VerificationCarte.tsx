@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { BadgeCheck, ShieldAlert, Search, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import logo from "@/assets/logo-agricapital-v2.png";
+import logo from "@/assets/logo-white.png";
 import { contratLabel } from "@/components/cartes/CartePersonnel";
 
 interface CarteVerifiee {
