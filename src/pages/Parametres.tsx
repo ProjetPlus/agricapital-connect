@@ -1,7 +1,7 @@
 import MainLayout from "@/components/layout/MainLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Shield, MapPin, Settings2, List, Bell, Globe, Package, UsersRound, UserPlus, Database, Map, Building, Home, TreePine, HardDrive, MapPinned, History } from "lucide-react";
+import { Users, Shield, MapPin, Settings2, List, Bell, Globe, Package, UsersRound, UserPlus, Database, Map, Building, Home, TreePine, HardDrive, MapPinned, History, IdCard } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { PERMISSIONS, hasPermission } from "@/lib/roles";
 import Utilisateurs from "@/pages/Utilisateurs";
@@ -22,6 +22,7 @@ import GestionBaseDonnees from "@/pages/parametres/GestionBaseDonnees";
 import SyncQueue from "@/pages/SyncQueue";
 import GestionZones from "@/pages/parametres/GestionZones";
 import JournalAudit from "@/pages/parametres/JournalAudit";
+import GestionCartes from "@/pages/parametres/GestionCartes";
 import { useSearchParams } from "react-router-dom";
 
 interface TabConfig {
@@ -53,6 +54,7 @@ const Parametres = () => {
     { value: 'statuts', label: 'Statuts', icon: List, permission: PERMISSIONS.MANAGE_SYSTEM, component: GestionStatuts },
     { value: 'champs', label: 'Champs', icon: Settings2, permission: PERMISSIONS.MANAGE_SYSTEM, component: ChampsPersonnalises },
     { value: 'notifications', label: 'Notifs', icon: Bell, permission: PERMISSIONS.MANAGE_SYSTEM, component: GestionNotifications },
+    { value: 'cartes', label: 'Carte du personnel', mobileLabel: 'Cartes', icon: IdCard, permission: PERMISSIONS.VIEW_AUDIT, component: GestionCartes },
     { value: 'tracabilite', label: 'Traçabilité', mobileLabel: 'Traces', icon: History, permission: PERMISSIONS.VIEW_AUDIT, component: JournalAudit },
     { value: 'database', label: 'BDD', icon: Database, permission: PERMISSIONS.MANAGE_SYSTEM, component: GestionBaseDonnees },
     { value: 'systeme', label: 'Système', icon: Globe, permission: PERMISSIONS.MANAGE_SYSTEM, component: ConfigurationSysteme },
