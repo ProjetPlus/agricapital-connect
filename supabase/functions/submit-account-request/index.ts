@@ -56,18 +56,18 @@ serve(async (req) => {
       return json({ error: "Cet identifiant est déjà utilisé. Choisissez-en un autre.", step: "username_available" }, 409);
     }
 
-    // Email déjà existant ?
+    // Email déjà existant ? (aucune donnée personnelle renvoyée au client)
     const { data: existingProfile } = await admin
       .from("profiles")
-      .select("nom_complet, email, telephone, photo_url, username, poste")
+      .select("id")
       .ilike("email", cleanEmail)
       .maybeSingle();
 
     if (existingProfile) {
+      console.log("submit-account-request: email déjà utilisé");
       return json({
         error: "email_exists",
-        message: `Cet email est déjà attribué à ${existingProfile.nom_complet}.`,
-        owner: existingProfile,
+        message: "Un compte existe déjà avec cette adresse email.",
         step: "email_exists",
       }, 409);
     }

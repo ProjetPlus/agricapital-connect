@@ -11,7 +11,6 @@ import { supabase } from "@/integrations/supabase/client";
 import logoGreen from "@/assets/logo-green.png";
 import { User, Mail, Phone, Briefcase, MapPin, FileText, KeyRound, AtSign } from "lucide-react";
 import { getSafeErrorMessage } from "@/lib/safeError";
-import { SignedImg } from "@/hooks/useSignedUrl";
 
 const ROLES = [
   { value: "commercial", label: "Commercial (Comm)" },
@@ -40,7 +39,6 @@ const AccountRequest = () => {
     password: "",
     password_confirm: "",
   });
-  const [ownerInfo, setOwnerInfo] = useState<any>(null);
   const [errorDetail, setErrorDetail] = useState<any>(null);
   
   const [regions, setRegions] = useState<any[]>([]);
@@ -104,7 +102,6 @@ const AccountRequest = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setOwnerInfo(null);
     setErrorDetail(null);
 
     if (formData.password !== formData.password_confirm) {
@@ -143,14 +140,12 @@ const AccountRequest = () => {
 
       const payload: any = data;
       if (error || payload?.error) {
-        if (payload?.owner) setOwnerInfo(payload.owner);
         let functionMessage = error?.message;
         let contextPayload: any = null;
         if (error && typeof (error as any).context?.json === "function") {
           try {
             contextPayload = await (error as any).context.json();
             functionMessage = contextPayload?.message || contextPayload?.error || functionMessage;
-            if (contextPayload?.owner) setOwnerInfo(contextPayload.owner);
           } catch { /* la réponse n'est pas JSON */ }
         }
         const detail = contextPayload || payload || {};
@@ -390,21 +385,6 @@ const AccountRequest = () => {
               </p>
             </div>
 
-            {ownerInfo && (
-              <div className="rounded-lg border-2 border-destructive/40 bg-destructive/5 p-4 space-y-2">
-                <p className="text-sm font-semibold text-destructive">Cet email est déjà attribué</p>
-                <div className="flex items-center gap-3">
-                  {ownerInfo.photo_url && (
-                    <SignedImg bucket="photos-profils" value={ownerInfo.photo_url} alt={ownerInfo.nom_complet} className="h-14 w-14 rounded-full object-cover" />
-                  )}
-                  <div className="text-sm">
-                    <p className="font-medium">{ownerInfo.nom_complet}</p>
-                    <p className="text-muted-foreground text-xs">{ownerInfo.email} • {ownerInfo.telephone || '—'}</p>
-                    <p className="text-muted-foreground text-xs">{ownerInfo.poste || ''} {ownerInfo.username ? `(@${ownerInfo.username})` : ''}</p>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {errorDetail && (
               <div className="rounded-lg border-2 border-destructive/40 bg-destructive/5 p-4 space-y-2">
