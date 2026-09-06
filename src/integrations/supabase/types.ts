@@ -3204,6 +3204,64 @@ export type Database = {
           },
         ]
       }
+      portail_messages: {
+        Row: {
+          auteur_nom: string | null
+          auteur_type: string
+          auteur_user_id: string | null
+          created_at: string
+          id: string
+          lu: boolean
+          message: string
+          plantation_id: string | null
+          souscripteur_id: string
+        }
+        Insert: {
+          auteur_nom?: string | null
+          auteur_type?: string
+          auteur_user_id?: string | null
+          created_at?: string
+          id?: string
+          lu?: boolean
+          message: string
+          plantation_id?: string | null
+          souscripteur_id: string
+        }
+        Update: {
+          auteur_nom?: string | null
+          auteur_type?: string
+          auteur_user_id?: string | null
+          created_at?: string
+          id?: string
+          lu?: boolean
+          message?: string
+          plantation_id?: string | null
+          souscripteur_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portail_messages_plantation_id_fkey"
+            columns: ["plantation_id"]
+            isOneToOne: false
+            referencedRelation: "plantations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "portail_messages_souscripteur_id_fkey"
+            columns: ["souscripteur_id"]
+            isOneToOne: false
+            referencedRelation: "souscripteurs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "portail_messages_souscripteur_id_fkey"
+            columns: ["souscripteur_id"]
+            isOneToOne: false
+            referencedRelation: "v_souscripteur_synthese"
+            referencedColumns: ["souscripteur_id"]
+          },
+        ]
+      }
       portefeuilles: {
         Row: {
           created_at: string | null
