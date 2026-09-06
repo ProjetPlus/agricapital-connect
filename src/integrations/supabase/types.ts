@@ -1216,15 +1216,18 @@ export type Database = {
           departement: string | null
           id: string
           matricule: string
+          mission: string | null
           notes: string | null
           photo_url: string | null
           poste: string | null
           profile_id: string
           role_code: string | null
           statut: string
+          statut_agent: string
           type_contrat: string
           updated_at: string
           updated_by: string | null
+          zone_intervention: string | null
         }
         Insert: {
           code_verification?: string
@@ -1235,15 +1238,18 @@ export type Database = {
           departement?: string | null
           id?: string
           matricule: string
+          mission?: string | null
           notes?: string | null
           photo_url?: string | null
           poste?: string | null
           profile_id: string
           role_code?: string | null
           statut?: string
+          statut_agent?: string
           type_contrat?: string
           updated_at?: string
           updated_by?: string | null
+          zone_intervention?: string | null
         }
         Update: {
           code_verification?: string
@@ -1254,15 +1260,18 @@ export type Database = {
           departement?: string | null
           id?: string
           matricule?: string
+          mission?: string | null
           notes?: string | null
           photo_url?: string | null
           poste?: string | null
           profile_id?: string
           role_code?: string | null
           statut?: string
+          statut_agent?: string
           type_contrat?: string
           updated_at?: string
           updated_by?: string | null
+          zone_intervention?: string | null
         }
         Relationships: [
           {
