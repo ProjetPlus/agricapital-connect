@@ -3,8 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { PERMISSIONS, hasPermission, roleLabel } from "@/lib/roles";
 import { logAdminAction } from "@/lib/audit";
-import { uploaderPhotoCarte } from "@/lib/photoCarte";
-import { CarteRecto, CarteVerso, CONTRATS, contratLabel, CarteData } from "@/components/cartes/CartePersonnel";
+import { uploaderPhotoCarte, CARTE_BUCKET } from "@/lib/photoCarte";
+import { CarteRecto, CarteVerso, CONTRATS, STATUTS_AGENT, contratLabel, CarteData } from "@/components/cartes/CartePersonnel";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,8 @@ import html2canvas from "html2canvas";
 type Row = Record<string, any>;
 
 const STATUTS = [
-  { v: "active", l: "Active" },
+  { v: "en_attente", l: "En attente" },
+  { v: "active", l: "Validée / Active" },
   { v: "suspendue", l: "Suspendue" },
   { v: "revoquee", l: "Révoquée" },
 ];
@@ -42,7 +43,17 @@ const GestionCartes = () => {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Row | null>(null);
   const [editOpen, setEditOpen] = useState(false);
-  const [form, setForm] = useState({ poste: "", departement: "", type_contrat: "cdi", date_expiration: "", statut: "active" });
+  const [form, setForm] = useState({
+    poste: "",
+    departement: "",
+    type_contrat: "cdi",
+    statut_agent: "employe",
+    mission: "",
+    zone_intervention: "",
+    date_delivrance: "",
+    date_expiration: "",
+    statut: "active",
+  });
   const rectoRef = useRef<HTMLDivElement>(null);
   const versoRef = useRef<HTMLDivElement>(null);
 
@@ -83,7 +94,11 @@ const GestionCartes = () => {
             departement: c?.departement || p.departement,
             role_code: c?.role_code || roles[p.user_id],
             type_contrat: c?.type_contrat || "cdi",
-            photo_url: c?.photo_url || null,
+            statut_agent: c?.statut_agent || "employe",
+            mission: c?.mission || null,
+            zone_intervention: c?.zone_intervention || p.departement || null,
+            photo_url: c?.photo_url || p.photo_url || null,
+            photo_bucket: c?.photo_url ? CARTE_BUCKET : "photos-profils",
             date_delivrance: c?.date_delivrance || null,
             date_expiration: c?.date_expiration || null,
             statut: c?.statut || "active",
@@ -111,7 +126,9 @@ const GestionCartes = () => {
       departement: profile.departement || null,
       role_code: roles[profile.user_id] || null,
       type_contrat: "cdi",
-      statut: "active",
+      statut_agent: "employe",
+      zone_intervention: profile.departement || null,
+      statut: "en_attente",
       created_by: user?.id || null,
     };
     const { data, error } = await (supabase as any).from("cartes_personnel").insert(payload).select("*").single();
@@ -142,6 +159,10 @@ const GestionCartes = () => {
       poste: carte.poste || "",
       departement: carte.departement || "",
       type_contrat: carte.type_contrat || "cdi",
+      statut_agent: carte.statut_agent || "employe",
+      mission: carte.mission || "",
+      zone_intervention: carte.zone_intervention || "",
+      date_delivrance: carte.date_delivrance || "",
       date_expiration: carte.date_expiration || "",
       statut: carte.statut || "active",
     });
@@ -155,6 +176,10 @@ const GestionCartes = () => {
       poste: form.poste || null,
       departement: form.departement || null,
       type_contrat: form.type_contrat,
+      statut_agent: form.statut_agent,
+      mission: form.mission || null,
+      zone_intervention: form.zone_intervention || null,
+      date_delivrance: form.date_delivrance || carte.date_delivrance,
       date_expiration: form.date_expiration || carte.date_expiration,
       statut: form.statut,
       updated_by: user?.id || null,
@@ -278,8 +303,10 @@ const GestionCartes = () => {
                       <TableCell>
                         {!carte ? (
                           <Badge variant="outline">Sans carte</Badge>
+                        ) : data.statut === "en_attente" ? (
+                          <Badge variant="outline" className="border-accent text-accent">En attente</Badge>
                         ) : data.statut === "active" ? (
-                          <Badge className="bg-primary">Active</Badge>
+                          <Badge className="bg-primary">Validée</Badge>
                         ) : data.statut === "suspendue" ? (
                           <Badge variant="secondary">Suspendue</Badge>
                         ) : (
@@ -291,9 +318,12 @@ const GestionCartes = () => {
                           <>
                             <Button size="sm" variant="outline" onClick={() => setSelected(profile)}>Voir la carte</Button>
                             {carte.statut === "active" ? (
-                              <Button size="sm" variant="ghost" onClick={() => changerStatut(carte, "suspendue")}><Ban className="h-4 w-4" /></Button>
+                              <Button size="sm" variant="ghost" title="Suspendre" onClick={() => changerStatut(carte, "suspendue")}><Ban className="h-4 w-4" /></Button>
                             ) : (
-                              <Button size="sm" variant="ghost" onClick={() => changerStatut(carte, "active")}><BadgeCheck className="h-4 w-4" /></Button>
+                              <Button size="sm" variant="ghost" title="Valider" onClick={() => changerStatut(carte, "active")}><BadgeCheck className="h-4 w-4" /></Button>
+                            )}
+                            {carte.statut !== "revoquee" && (
+                              <Button size="sm" variant="ghost" title="Révoquer" onClick={() => changerStatut(carte, "revoquee")}><Ban className="h-4 w-4 text-destructive" /></Button>
                             )}
                           </>
                         ) : (
@@ -313,7 +343,7 @@ const GestionCartes = () => {
       </Card>
 
       <Dialog open={!!selected} onOpenChange={(v) => !v && setSelected(null)}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-h-[92vh] w-[calc(100vw-1.5rem)] max-w-3xl overflow-y-auto">
           <DialogHeader><DialogTitle>Carte de {selected?.nom_complet}</DialogTitle></DialogHeader>
           {dataSelection && (
             <Tabs defaultValue="recto">
@@ -322,10 +352,10 @@ const GestionCartes = () => {
                 <TabsTrigger value="verso">Verso</TabsTrigger>
                 <TabsTrigger value="both">Recto / Verso</TabsTrigger>
               </TabsList>
-              <TabsContent value="recto" className="flex justify-center py-4">
+              <TabsContent value="recto" className="flex justify-center overflow-x-auto py-4">
                 <CarteRecto ref={rectoRef} carte={dataSelection} />
               </TabsContent>
-              <TabsContent value="verso" className="flex justify-center py-4">
+              <TabsContent value="verso" className="flex justify-center overflow-x-auto py-4">
                 <CarteVerso ref={versoRef} carte={dataSelection} />
               </TabsContent>
               <TabsContent value="both" className="flex flex-wrap justify-center gap-4 py-4">
@@ -360,11 +390,21 @@ const GestionCartes = () => {
       </Dialog>
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[92vh] w-[calc(100vw-1.5rem)] overflow-y-auto sm:w-auto">
           <DialogHeader><DialogTitle>Modifier la carte</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div><Label>Poste</Label><Input value={form.poste} onChange={(e) => setForm({ ...form, poste: e.target.value })} /></div>
             <div><Label>Département</Label><Input value={form.departement} onChange={(e) => setForm({ ...form, departement: e.target.value })} /></div>
+            <div><Label>Mission</Label><Input value={form.mission} placeholder="Ex: Prospection et suivi des souscripteurs" onChange={(e) => setForm({ ...form, mission: e.target.value })} /></div>
+            <div><Label>Zone d'intervention</Label><Input value={form.zone_intervention} placeholder="Ex: Daloa – Gonaté" onChange={(e) => setForm({ ...form, zone_intervention: e.target.value })} /></div>
+            <div>
+              <Label>Statut affiché sur la carte</Label>
+              <Select value={form.statut_agent} onValueChange={(v) => setForm({ ...form, statut_agent: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{STATUTS_AGENT.map((s) => <SelectItem key={s.v} value={s.v}>{s.l}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div><Label>Date de délivrance</Label><Input type="date" value={form.date_delivrance} onChange={(e) => setForm({ ...form, date_delivrance: e.target.value })} /></div>
             <div>
               <Label>Type de contrat</Label>
               <Select value={form.type_contrat} onValueChange={(v) => setForm({ ...form, type_contrat: v })}>
