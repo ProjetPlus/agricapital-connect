@@ -102,7 +102,6 @@ const AccountRequest = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setOwnerInfo(null);
     setErrorDetail(null);
 
     if (formData.password !== formData.password_confirm) {
