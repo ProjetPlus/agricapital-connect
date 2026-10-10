@@ -1,3 +1,4 @@
+import { Component, type ErrorInfo, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -103,7 +104,45 @@ const DomainRouter = () => {
   );
 };
 
+
+class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("[AgriCapital Portal] Erreur React non interceptée :", error, info.componentStack);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <main className="flex min-h-screen items-center justify-center bg-background px-6 py-12 text-foreground">
+          <section className="w-full max-w-lg space-y-4 text-center">
+            <h1 className="text-2xl font-bold">Une erreur est survenue</h1>
+            <p className="text-muted-foreground">
+              Le portail n’a pas pu afficher cette page. Vous pouvez réessayer ou revenir à l’accueil.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              <button className="rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground" onClick={() => window.location.reload()}>
+                Réessayer
+              </button>
+              <button className="rounded-md border px-5 py-3 font-medium" onClick={() => { window.location.href = "/"; }}>
+                Retour à l’accueil
+              </button>
+            </div>
+          </section>
+        </main>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const App = () => (
+  <AppErrorBoundary>
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
@@ -116,6 +155,7 @@ const App = () => (
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
+  </AppErrorBoundary>
 );
 
 export default App;
