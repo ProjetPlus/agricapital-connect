@@ -242,15 +242,15 @@ const Equipes = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Gestion des Équipes</h1>
-          <p className="text-muted-foreground mt-1">{equipes.length} équipe(s) — {commercialCount} commerciale(s), {techniqueCount} technique(s)</p>
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-3xl font-bold">Gestion des Équipes</h1>
+          <p className="text-muted-foreground mt-1 text-xs sm:text-sm">{equipes.length} équipe(s) — {commercialCount} commerciale(s), {techniqueCount} technique(s)</p>
         </div>
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => {
+            <Button className="w-full sm:w-auto" onClick={() => {
               setSelectedEquipe(null);
               setFormData({ nom: "", responsable_id: "", region_id: "", type_equipe: activeTab as any, actif: true });
             }}>
@@ -308,59 +308,57 @@ const Equipes = () => {
         </Dialog>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-3 bg-primary/10 rounded-lg"><Users className="h-5 w-5 text-primary" /></div>
-            <div>
-              <div className="text-2xl font-bold">{equipes.length}</div>
-              <div className="text-sm text-muted-foreground">Total</div>
+      {/* Stats: 2 colonnes sur mobile, puis adaptation progressive à l'espace disponible. */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+        <Card className="min-w-0">
+          <CardContent className="p-2.5 sm:p-4 flex items-center gap-2 sm:gap-3">
+            <div className="shrink-0 p-2 sm:p-3 bg-primary/10 rounded-lg"><Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary" /></div>
+            <div className="min-w-0">
+              <div className="text-xl sm:text-2xl font-bold tabular-nums">{equipes.length}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground leading-tight break-words">Total</div>
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-3 bg-green-100 rounded-lg"><Briefcase className="h-5 w-5 text-green-600" /></div>
-            <div>
-              <div className="text-2xl font-bold">{commercialCount}</div>
-              <div className="text-sm text-muted-foreground">Commerciales</div>
+        <Card className="min-w-0">
+          <CardContent className="p-2.5 sm:p-4 flex items-center gap-2 sm:gap-3">
+            <div className="shrink-0 p-2 sm:p-3 bg-green-100 rounded-lg"><Briefcase className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" /></div>
+            <div className="min-w-0">
+              <div className="text-xl sm:text-2xl font-bold tabular-nums">{commercialCount}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground leading-tight break-words">Commerciales</div>
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-3 bg-teal-100 rounded-lg"><Wrench className="h-5 w-5 text-teal-600" /></div>
-            <div>
-              <div className="text-2xl font-bold">{techniqueCount}</div>
-              <div className="text-sm text-muted-foreground">Techniques</div>
+        <Card className="min-w-0">
+          <CardContent className="p-2.5 sm:p-4 flex items-center gap-2 sm:gap-3">
+            <div className="shrink-0 p-2 sm:p-3 bg-teal-100 rounded-lg"><Wrench className="h-4 w-4 sm:h-5 sm:w-5 text-teal-600" /></div>
+            <div className="min-w-0">
+              <div className="text-xl sm:text-2xl font-bold tabular-nums">{techniqueCount}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground leading-tight break-words">Techniques</div>
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-3 bg-green-100 rounded-lg"><CheckCircle className="h-5 w-5 text-green-600" /></div>
-            <div>
-              <div className="text-2xl font-bold">{equipes.filter(e => e.actif).length}</div>
-              <div className="text-sm text-muted-foreground">Actives</div>
+        <Card className="min-w-0">
+          <CardContent className="p-2.5 sm:p-4 flex items-center gap-2 sm:gap-3">
+            <div className="shrink-0 p-2 sm:p-3 bg-green-100 rounded-lg"><CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" /></div>
+            <div className="min-w-0">
+              <div className="text-xl sm:text-2xl font-bold tabular-nums">{equipes.filter(e => e.actif).length}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground leading-tight break-words">Actives</div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input placeholder="Rechercher..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
       </div>
 
-      {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="commercial" className="gap-2">
+        <TabsList className="w-full sm:w-auto grid grid-cols-2 sm:flex h-auto">
+          <TabsTrigger value="commercial" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
             <Briefcase className="h-4 w-4" />Commerciale ({commercialCount})
           </TabsTrigger>
-          <TabsTrigger value="technique" className="gap-2">
+          <TabsTrigger value="technique" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
             <Wrench className="h-4 w-4" />Technique ({techniqueCount})
           </TabsTrigger>
         </TabsList>
@@ -368,7 +366,6 @@ const Equipes = () => {
         <TabsContent value="technique"><EquipeTable /></TabsContent>
       </Tabs>
 
-      {/* Members Dialog */}
       <Dialog open={isMembersOpen} onOpenChange={setIsMembersOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
@@ -378,7 +375,6 @@ const Equipes = () => {
               <Badge variant="outline" className="ml-2 text-xs">{membersEquipe?.type_equipe === "technique" ? "Technique" : "Commerciale"}</Badge>
             </DialogTitle>
           </DialogHeader>
-          
           <div className="flex gap-2">
             <Select value={selectedMemberId} onValueChange={setSelectedMemberId}>
               <SelectTrigger className="flex-1">
@@ -392,30 +388,21 @@ const Equipes = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Button onClick={addMember} disabled={!selectedMemberId} size="sm">
-              <UserPlus className="h-4 w-4" />
-            </Button>
+            <Button onClick={addMember} disabled={!selectedMemberId} size="sm"><UserPlus className="h-4 w-4" /></Button>
           </div>
-
           <div className="space-y-2 max-h-80 overflow-y-auto">
             {members.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">Aucun membre dans cette équipe</p>
             ) : (
               members.map((m) => (
                 <div key={m.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <p className="font-medium text-sm">{m.nom_complet}</p>
-                    <div className="flex gap-1 mt-1">
-                      {m.roles.map((r: string) => (
-                        <Badge key={r} variant="secondary" className="text-xs">
-                          {ROLE_SHORT[r] || r}
-                        </Badge>
-                      ))}
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm break-words">{m.nom_complet}</p>
+                    <div className="flex gap-1 mt-1 flex-wrap">
+                      {m.roles.map((r: string) => <Badge key={r} variant="secondary" className="text-xs">{ROLE_SHORT[r] || r}</Badge>)}
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => removeMember(m.id)} className="text-destructive">
-                    <UserMinus className="h-4 w-4" />
-                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => removeMember(m.id)} className="text-destructive shrink-0"><UserMinus className="h-4 w-4" /></Button>
                 </div>
               ))
             )}
